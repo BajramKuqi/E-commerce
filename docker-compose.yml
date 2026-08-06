@@ -3,8 +3,8 @@
     image: postgres:16
     container_name: ecommerce-postgres
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: bajram
+      POSTGRES_PASSWORD: bajram2005
       POSTGRES_DB: ecommerce
     ports:
       - "5433:5432"
