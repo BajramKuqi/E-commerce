@@ -11,8 +11,16 @@ public static class RoleSeeder
 
         foreach (var role in roles)
         {
-            if(!await roleManager.RoleExistsAsync(role))
-                await roleManager.CreateAsync(new IdentityRole(role));
+            if (!await roleManager.RoleExistsAsync(role))
+            {
+                var result = await roleManager.CreateAsync(new IdentityRole(role));
+
+                if (!result.Succeeded)
+                {
+                    var errors = string.Join("; ", result.Errors.Select(x => x.Description));
+                    throw new Exception($"Failed to seed role {role}: {errors}");
+                }
+            }
         }
     }
 }
