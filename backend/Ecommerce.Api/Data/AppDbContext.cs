@@ -28,5 +28,15 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
         modelBuilder.Entity<OrderItem>().HasOne(oi => oi.Product).WithMany().OnDelete(DeleteBehavior.Restrict);
         
         modelBuilder.Entity<InventoryReservation>().HasOne(ir => ir.Product).WithMany().OnDelete(DeleteBehavior.Restrict);
+        
+        modelBuilder.Entity<Order>().HasOne(o => o.User).WithMany(u => u.Orders).OnDelete(DeleteBehavior.Restrict);
+        
+        modelBuilder.Entity<Cart>().HasOne(c => c.User).WithOne(u => u.Cart).HasForeignKey<Cart>(c => c.UserId).OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Product>().Property(p => p.Price).HasPrecision(18, 2);
+        
+        modelBuilder.Entity<Order>().Property(o => o.TotalAmount).HasPrecision(18, 2);
+        
+        modelBuilder.Entity<OrderItem>().Property(oi => oi.UnitPriceSnapshot).HasPrecision(18, 2);
     }
 }
