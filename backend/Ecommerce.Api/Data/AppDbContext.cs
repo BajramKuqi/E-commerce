@@ -39,5 +39,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole, str
         modelBuilder.Entity<Order>().Property(o => o.TotalAmount).HasPrecision(18, 2);
         
         modelBuilder.Entity<OrderItem>().Property(oi => oi.UnitPriceSnapshot).HasPrecision(18, 2);
+        
+        modelBuilder.Entity<Product>().HasOne(p => p.Category).WithMany(c => c.Products).OnDelete(DeleteBehavior.Restrict);
     }
 }
