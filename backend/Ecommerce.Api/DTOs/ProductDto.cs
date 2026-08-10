@@ -10,5 +10,5 @@ public class ProductDto
     public int CategoryId { get; set; }
     public string CategoryName { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    public byte[] RowVersion { get; set; } = null!;
+    public uint RowVersion { get; set; }
 }

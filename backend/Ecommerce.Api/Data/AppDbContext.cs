@@ -41,5 +41,11 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole, str
         modelBuilder.Entity<OrderItem>().Property(oi => oi.UnitPriceSnapshot).HasPrecision(18, 2);
         
         modelBuilder.Entity<Product>().HasOne(p => p.Category).WithMany(c => c.Products).OnDelete(DeleteBehavior.Restrict);
+        
+        modelBuilder.Entity<Category>().HasIndex(c => c.Name).IsUnique();
+        
+        modelBuilder.Entity<Category>().HasIndex(c => c.Slug).IsUnique();
+        
+        modelBuilder.Entity<Product>().Property(p => p.RowVersion).IsRowVersion();
     }
 }

@@ -16,5 +16,5 @@ public class Product
 
     public ICollection<ProductImage> Images { get; set; } = new List<ProductImage>();
 
-    [Timestamp] public byte[] RowVersion { get; set; } = null!;
+    public uint RowVersion { get; set; }
 }
