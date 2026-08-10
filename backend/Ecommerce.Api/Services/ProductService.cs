@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Ecommerce.Api.Services;
 
-public class ProductService
+public class ProductService : IProductService
 {
     private readonly AppDbContext _dbContext;
     
@@ -46,7 +46,7 @@ public class ProductService
         return ToDto(product);
     }
 
-    public async Task<ProductDto?> CreateAsync(CreateProductDto product)
+    public async Task<ProductDto> CreateAsync(CreateProductDto product)
     {
         var newProduct = new Product
         {
