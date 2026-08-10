@@ -1,6 +1,7 @@
 using Ecommerce.Api.Data;
 using Ecommerce.Api.DTOs;
 using Ecommerce.Api.Models;
+using Ecommerce.Api.Models.Results;
 using Microsoft.EntityFrameworkCore;
 
 namespace Ecommerce.Api.Services;
@@ -63,11 +64,11 @@ public class ProductService
         return  ToDto(newProduct);
     }
 
-    public async Task<ProductDto?> UpdateAsync(int id, UpdateProductDto productDto)
+    public async Task<ProductUpdateResult> UpdateAsync(int id, UpdateProductDto productDto)
     {
         var product = await _dbContext.Products.Include(p => p.Category).FirstOrDefaultAsync(p => p.Id == id);
         if (product == null)
-            return null;
+            return ProductUpdateResult.NotFound();
 
         product.Name = productDto.Name;
         product.Description = productDto.Description;
@@ -77,8 +78,16 @@ public class ProductService
 
         _dbContext.Entry(product).Property(p => p.RowVersion).OriginalValue = productDto.RowVersion;
 
-        await _dbContext.SaveChangesAsync();
-        return ToDto(product);
+        try
+        {
+            await _dbContext.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            return ProductUpdateResult.ConcurrencyConflict();
+        }
+
+        return ProductUpdateResult.Success(ToDto(product));
     }
 
     public async Task<bool> DeleteAsync(int id)
