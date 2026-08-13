@@ -110,7 +110,7 @@ namespace Ecommerce.Api.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Carts");
+                    b.ToTable("Carts", (string)null);
                 });
 
             modelBuilder.Entity("Ecommerce.Api.Models.CartItem", b =>
@@ -136,7 +136,7 @@ namespace Ecommerce.Api.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("CartItems");
+                    b.ToTable("CartItems", (string)null);
                 });
 
             modelBuilder.Entity("Ecommerce.Api.Models.Category", b =>
@@ -166,7 +166,7 @@ namespace Ecommerce.Api.Migrations
                     b.HasIndex("Slug")
                         .IsUnique();
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
                 });
 
             modelBuilder.Entity("Ecommerce.Api.Models.InventoryReservation", b =>
@@ -195,7 +195,7 @@ namespace Ecommerce.Api.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("InventoryReservations");
+                    b.ToTable("InventoryReservations", (string)null);
                 });
 
             modelBuilder.Entity("Ecommerce.Api.Models.Order", b =>
@@ -227,7 +227,7 @@ namespace Ecommerce.Api.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Orders");
+                    b.ToTable("Orders", (string)null);
                 });
 
             modelBuilder.Entity("Ecommerce.Api.Models.OrderItem", b =>
@@ -261,7 +261,7 @@ namespace Ecommerce.Api.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("OrderItems");
+                    b.ToTable("OrderItems", (string)null);
                 });
 
             modelBuilder.Entity("Ecommerce.Api.Models.Product", b =>
@@ -302,7 +302,7 @@ namespace Ecommerce.Api.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("Products");
+                    b.ToTable("Products", (string)null);
                 });
 
             modelBuilder.Entity("Ecommerce.Api.Models.ProductImage", b =>
@@ -330,7 +330,7 @@ namespace Ecommerce.Api.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("ProductImages");
+                    b.ToTable("ProductImages", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
