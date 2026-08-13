@@ -4,8 +4,8 @@ namespace Ecommerce.Api.Models.Results;
 
 public class CartAddResult
 {
-    public CartAddStatus Status { get; set; }
-    public CartDto? Cart { get; set; }
+    public CartAddStatus Status { get; private set; }
+    public CartDto? Cart { get; private set; }
     
     public static CartAddResult Success(CartDto cart) => 
         new() { Status = CartAddStatus.Success, Cart = cart };

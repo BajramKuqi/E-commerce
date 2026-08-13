@@ -4,8 +4,8 @@ namespace Ecommerce.Api.Models.Results;
 
 public class ProductUpdateResult
 {
-    public ProductUpdateStatus Status { get; set; }
-    public ProductDto? Product { get; set; }
+    public ProductUpdateStatus Status { get; private set; }
+    public ProductDto? Product { get; private set; }
 
     public static ProductUpdateResult Success(ProductDto product) =>
         new() { Status = ProductUpdateStatus.Success, Product = product };
