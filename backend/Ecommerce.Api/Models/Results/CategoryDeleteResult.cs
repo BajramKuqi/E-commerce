@@ -2,7 +2,7 @@ namespace Ecommerce.Api.Models.Results;
 
 public class CategoryDeleteResult
 {
-    public CategoryDeleteStatus Status { get; set; }
+    public CategoryDeleteStatus Status { get; private set; }
     
     public static CategoryDeleteResult Success() =>
     new() { Status = CategoryDeleteStatus.Success };
