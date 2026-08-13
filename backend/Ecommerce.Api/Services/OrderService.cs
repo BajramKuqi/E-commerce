@@ -95,6 +95,68 @@ public class OrderService : IOrderService
         return order == null ? null : ToDto(order);
     }
 
+    private static readonly Dictionary<OrderStatus, OrderStatus[]> ValidTransition = new()
+    {
+        [OrderStatus.Pending] = new[] { OrderStatus.Paid, OrderStatus.Cancelled },
+        [OrderStatus.Paid] = new[] { OrderStatus.Shipped },
+        [OrderStatus.Shipped] = new[] { OrderStatus.Delivered },
+        [OrderStatus.Delivered] = Array.Empty<OrderStatus>(),
+        [OrderStatus.Cancelled] = Array.Empty<OrderStatus>(),
+    };
+
+    public async Task<OrderStatusUpdateResult> UpdateStatusAsync(int orderId, OrderStatus newStatus)
+    {
+        var order = await _context.Orders.Include(o => o.Items).FirstOrDefaultAsync(o => o.Id == orderId);
+        if (order == null)
+            return OrderStatusUpdateResult.NotFound();
+
+        if (!ValidTransition[order.Status].Contains(newStatus))
+            return OrderStatusUpdateResult.InvalidTransition();
+
+        if (newStatus == OrderStatus.Cancelled)
+        {
+            await ReleaseStockAsync(order);
+        }
+        
+        order.Status = newStatus;
+        await _context.SaveChangesAsync();
+        
+        return OrderStatusUpdateResult.Success(ToDto(order));
+    }
+
+    public async Task<OrderCancelResult> CancelOrderAsync(string userId, int orderId)
+    {
+        var order = await _context.Orders.Include(o => o.Items).FirstOrDefaultAsync(o => o.Id == orderId && o.UserId == userId);
+
+        if (order == null)
+            return OrderCancelResult.NotFound();
+
+        if (order.Status != OrderStatus.Pending)
+            return OrderCancelResult.NotCancellable();
+        
+        await ReleaseStockAsync(order);
+        order.Status = OrderStatus.Cancelled;
+        await _context.SaveChangesAsync();
+        
+        return OrderCancelResult.Success(ToDto(order));
+    }
+
+    private async Task ReleaseStockAsync(Order order)
+    {
+        var productId = order.Items.Select(i => i.ProductId).ToList();
+        var products = await _context.Products.Where(p => productId.Contains(p.Id)).ToDictionaryAsync(p => p.Id);
+
+        foreach (var item in order.Items)
+        {
+            if(products.TryGetValue(item.ProductId, out var product))
+                product.StockQuantity += item.Quantity;
+        }
+        
+        var reservations = await _context.InventoryReservations.Where(r => r.OrderId == order.Id).ToListAsync();
+        
+        _context.InventoryReservations.RemoveRange(reservations);
+    }
+
     private OrderDto ToDto(Order order) => new()
     {
         Id = order.Id,
