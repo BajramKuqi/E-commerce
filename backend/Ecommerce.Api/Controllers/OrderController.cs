@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Ecommerce.Api.DTOs;
+using Ecommerce.Api.Models;
 using Ecommerce.Api.Models.Results;
 using Ecommerce.Api.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -49,5 +50,32 @@ public class OrderController : ControllerBase
     {
         var order = await _orderService.GetOrderByIdAsync(UserId, orderId);
         return order == null ? NotFound() : Ok(order);
+    }
+
+    [HttpPatch("{id:int}/status")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> UpdateStatusAsync(int id, UpdateOrderStatusDto newStatus)
+    {
+        var result = await _orderService.UpdateStatusAsync(id, newStatus.NewStatus);
+        return result.Status switch
+        {
+            OrderStatusUpdateStatus.Success => Ok(result.Order),
+            OrderStatusUpdateStatus.NotFound => NotFound(),
+            OrderStatusUpdateStatus.InvalidTransition => Conflict("Invalid status transition"),
+            _ => StatusCode(500)
+        };
+    }
+
+    [HttpPost("{id:int}/cancel")]
+    public async Task<IActionResult> CancelOrderAsync(int id)
+    {
+        var result = await _orderService.CancelOrderAsync(UserId, id);
+        return result.Status switch
+        {
+            OrderCancelStatus.Success => Ok(result.Order),
+            OrderCancelStatus.NotFound => NotFound(),
+            OrderCancelStatus.NotCancellable => Conflict("Only pending orders can be cancelled"),
+            _ => StatusCode(500)
+        };
     }
 }
