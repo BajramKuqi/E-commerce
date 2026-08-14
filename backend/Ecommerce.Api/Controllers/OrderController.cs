@@ -33,6 +33,7 @@ public class OrderController : ControllerBase
             OrderCheckoutStatus.CartEmpty => BadRequest(result.ErrorMessage),
             OrderCheckoutStatus.InsufficientStock => Conflict(result.ErrorMessage),
             OrderCheckoutStatus.ConcurrencyConflict => Conflict(result.ErrorMessage),
+            OrderCheckoutStatus.PaymentSetupFailed => StatusCode(502, result.ErrorMessage),
             _ => StatusCode(500)
         };
     }

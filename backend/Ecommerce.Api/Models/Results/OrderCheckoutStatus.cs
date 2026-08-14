@@ -5,5 +5,6 @@ public enum OrderCheckoutStatus
     Success,
     CartEmpty,
     InsufficientStock,
-    ConcurrencyConflict
+    ConcurrencyConflict,
+    PaymentSetupFailed
 }

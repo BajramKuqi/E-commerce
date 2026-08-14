@@ -19,4 +19,7 @@ public class OrderCheckoutResult
     
     public static OrderCheckoutResult ConcurrencyConflict() =>
     new() { Status = OrderCheckoutStatus.ConcurrencyConflict, ErrorMessage = "Stock changed during checkout, please try again"};
+
+    public static OrderCheckoutResult PaymentSetupFailed() =>
+        new() { Status = OrderCheckoutStatus.PaymentSetupFailed, ErrorMessage =  "Payment provider unavailable" };
 }
