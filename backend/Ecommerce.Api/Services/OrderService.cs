@@ -157,11 +157,56 @@ public class OrderService : IOrderService
         _context.InventoryReservations.RemoveRange(reservations);
     }
 
+    public async Task<PagedResult<AdminOrderDto>> GetAllOrdersAsync(AdminOrderQueryDto queryDto)
+    {
+        
+        var page = queryDto.Page < 1 ? 1 : queryDto.Page;
+        var pageSize = queryDto.PageSize < 1 ? 20 : Math.Min(queryDto.PageSize, 100);
+        
+        var orderQuery =_context.Orders.Include(o => o.Items).AsQueryable();
+        
+        if(queryDto.Status.HasValue)
+            orderQuery = orderQuery.Where(o =>o.Status == queryDto.Status.Value);
+        
+        if(!string.IsNullOrWhiteSpace(queryDto.UserId))
+            orderQuery = orderQuery.Where(o => o.UserId == queryDto.UserId);
+        
+        var totalCount = await orderQuery.CountAsync();
+
+        var orders = await orderQuery.OrderByDescending(o => o.CreatedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(queryDto.PageSize).ToListAsync();
+
+        return new PagedResult<AdminOrderDto>
+        {
+            Items = orders.Select(ToAdminDto).ToList(),
+            Page = page,
+            PageSize = pageSize,
+            TotalCount = totalCount,
+        };
+    }
+
     private OrderDto ToDto(Order order) => new()
     {
         Id = order.Id,
         Status = order.Status,
         TotalAmount = order.TotalAmount,
+        CreatedAt = order.CreatedAt,
+        Items = order.Items.Select(i => new OrderItemDto
+        {
+            ProductId = i.ProductId,
+            ProductName = i.ProductNameSnapshot,
+            UnitPrice = i.UnitPriceSnapshot,
+            Quantity = i.Quantity
+        }).ToList()
+    };
+
+    private static AdminOrderDto ToAdminDto(Order order) => new()
+    {
+        Id = order.Id,
+        UserId = order.UserId,
+        Status = order.Status,
+        TotalPrice = order.TotalAmount,
         CreatedAt = order.CreatedAt,
         Items = order.Items.Select(i => new OrderItemDto
         {
