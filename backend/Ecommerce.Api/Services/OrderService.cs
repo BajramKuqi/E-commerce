@@ -3,6 +3,7 @@ using Ecommerce.Api.DTOs;
 using Ecommerce.Api.Models;
 using Ecommerce.Api.Models.Results;
 using Microsoft.EntityFrameworkCore;
+using Stripe;
 
 namespace Ecommerce.Api.Services;
 
@@ -75,7 +76,29 @@ public class OrderService : IOrderService
             return OrderCheckoutResult.ConcurrencyConflict();
         }
 
-        return OrderCheckoutResult.Success(ToDto(order));
+        PaymentIntent paymentIntent;
+        try
+        {
+            var paymentIntentService = new PaymentIntentService();
+            paymentIntent = await paymentIntentService.CreateAsync(new PaymentIntentCreateOptions
+            {
+                Amount = (long)(order.TotalAmount * 100),
+                Currency = "eur",
+                Metadata = new Dictionary<string, string>
+                {
+                    { "order_id", order.Id.ToString() }
+                }
+            });
+        }
+        catch (StripeException)
+        {
+            return OrderCheckoutResult.PaymentSetupFailed();
+        }
+
+        order.StripePaymentIntentId = paymentIntent.Id;
+        await  _context.SaveChangesAsync();
+
+        return OrderCheckoutResult.Success(ToDto(order,paymentIntent.ClientSecret));
     }
 
     public async Task<List<OrderDto>> GetOrderAsync(string userId)
@@ -84,7 +107,7 @@ public class OrderService : IOrderService
             .Where(o => o.UserId == userId).OrderByDescending(o => o.CreatedAt)
             .ToListAsync();
         
-        return orders.Select(ToDto).ToList();
+        return orders.Select(o => ToDto(o)).ToList();
     }
 
     public async Task<OrderDto?> GetOrderByIdAsync(string userId, int orderId)
@@ -175,7 +198,7 @@ public class OrderService : IOrderService
 
         var orders = await orderQuery.OrderByDescending(o => o.CreatedAt)
             .Skip((page - 1) * pageSize)
-            .Take(queryDto.PageSize).ToListAsync();
+            .Take(pageSize).ToListAsync();
 
         return new PagedResult<AdminOrderDto>
         {
@@ -186,12 +209,13 @@ public class OrderService : IOrderService
         };
     }
 
-    private OrderDto ToDto(Order order) => new()
+    private OrderDto ToDto(Order order,string? clientSecret = null) => new()
     {
         Id = order.Id,
         Status = order.Status,
         TotalAmount = order.TotalAmount,
         CreatedAt = order.CreatedAt,
+        ClientSecret = clientSecret,
         Items = order.Items.Select(i => new OrderItemDto
         {
             ProductId = i.ProductId,
