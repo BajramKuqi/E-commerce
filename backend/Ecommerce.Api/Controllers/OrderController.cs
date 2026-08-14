@@ -78,4 +78,12 @@ public class OrderController : ControllerBase
             _ => StatusCode(500)
         };
     }
+
+    [HttpGet("admin")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetAllOrdersAsync([FromQuery] AdminOrderQueryDto queryDto)
+    {
+        var orders = await _orderService.GetAllOrdersAsync(queryDto);
+        return Ok(orders);
+    }
 }
