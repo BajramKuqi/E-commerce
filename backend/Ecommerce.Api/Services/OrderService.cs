@@ -209,6 +209,15 @@ public class OrderService : IOrderService
         };
     }
 
+    public async Task<OrderStatusUpdateResult> MarkOrderPaidByPaymentIntentAsync(string paymentIntentId)
+    {
+        var order = await _context.Orders.FirstOrDefaultAsync(o => o.StripePaymentIntentId == paymentIntentId);
+        if (order == null)
+            return OrderStatusUpdateResult.NotFound();
+
+        return await UpdateStatusAsync(order.Id, OrderStatus.Paid);
+    }
+
     private OrderDto ToDto(Order order,string? clientSecret = null) => new()
     {
         Id = order.Id,
