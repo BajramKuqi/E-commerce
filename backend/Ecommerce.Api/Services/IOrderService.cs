@@ -13,4 +13,6 @@ public interface IOrderService
     Task<OrderCancelResult> CancelOrderAsync(string userId, int orderId);
     Task<PagedResult<AdminOrderDto>> GetAllOrdersAsync(AdminOrderQueryDto queryDto);
     Task<OrderStatusUpdateResult> MarkOrderPaidByPaymentIntentAsync(string paymentIntentId);
+    Task<OrderRefundResult> InitiateRefundAsync(int orderId);
+    Task<OrderStatusUpdateResult> MarkOrderRefundedByPaymentIntentAsync(string paymentIntentId);
 }

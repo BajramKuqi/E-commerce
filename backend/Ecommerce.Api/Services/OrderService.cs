@@ -121,10 +121,11 @@ public class OrderService : IOrderService
     private static readonly Dictionary<OrderStatus, OrderStatus[]> ValidTransition = new()
     {
         [OrderStatus.Pending] = new[] { OrderStatus.Paid, OrderStatus.Cancelled },
-        [OrderStatus.Paid] = new[] { OrderStatus.Shipped },
-        [OrderStatus.Shipped] = new[] { OrderStatus.Delivered },
-        [OrderStatus.Delivered] = Array.Empty<OrderStatus>(),
+        [OrderStatus.Paid] = new[] { OrderStatus.Shipped, OrderStatus.Refunded },
+        [OrderStatus.Shipped] = new[] { OrderStatus.Delivered, OrderStatus.Refunded },
+        [OrderStatus.Delivered] = new[] {OrderStatus.Refunded},
         [OrderStatus.Cancelled] = Array.Empty<OrderStatus>(),
+        [OrderStatus.Refunded] = Array.Empty<OrderStatus>()
     };
 
     public async Task<OrderStatusUpdateResult> UpdateStatusAsync(int orderId, OrderStatus newStatus)
@@ -217,7 +218,42 @@ public class OrderService : IOrderService
 
         return await UpdateStatusAsync(order.Id, OrderStatus.Paid);
     }
-    
+
+    public async Task<OrderRefundResult> InitiateRefundAsync(int orderId)
+    {
+        var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == orderId);
+        if (order == null)
+            return OrderRefundResult.NotFound();
+        
+        var refundableStatus = new[] {OrderStatus.Paid, OrderStatus.Shipped, OrderStatus.Delivered};
+        if (!refundableStatus.Contains(order.Status) || string.IsNullOrEmpty(order.StripePaymentIntentId))
+            return OrderRefundResult.NotRefundable();
+
+        try
+        {
+            var refundService = new RefundService();
+            await refundService.CreateAsync(new RefundCreateOptions
+            {
+                PaymentIntent = order.StripePaymentIntentId
+            });
+        }
+        catch (StripeException)
+        {
+            return OrderRefundResult.RefundFailed();
+        }
+
+        return OrderRefundResult.Success();
+    }
+
+    public async Task<OrderStatusUpdateResult> MarkOrderRefundedByPaymentIntentAsync(string paymentIntentId)
+    {
+        var order = await _context.Orders.FirstOrDefaultAsync(o => o.StripePaymentIntentId == paymentIntentId);
+        if (order == null)
+            return OrderStatusUpdateResult.NotFound();
+        
+        return await UpdateStatusAsync(order.Id, OrderStatus.Refunded);
+    }
+
     private OrderDto ToDto(Order order,string? clientSecret = null) => new()
     {
         Id = order.Id,
