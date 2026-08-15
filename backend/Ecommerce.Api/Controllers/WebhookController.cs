@@ -63,6 +63,19 @@ public class WebhookController : ControllerBase
                 }
                 break;
             }
+            case "charge.refunded":
+            {
+                if (stripeEvent.Data.Object is Charge refundedCharge && refundedCharge.PaymentIntentId != null)
+                {
+                    var result = await _orderService.MarkOrderRefundedByPaymentIntentAsync(refundedCharge.PaymentIntentId);
+                    if (result.Status == OrderStatusUpdateStatus.NotFound)
+                        _logger.LogWarning("Webhook: no order found for refunded charge, PaymentIntent {Id}",refundedCharge.PaymentIntentId);
+                    else if (result.Status == OrderStatusUpdateStatus.InvalidTransition)
+                        _logger.LogWarning("Webhook: invalid transition for PaymentIntent {Id}", refundedCharge.PaymentIntentId);
+                }
+
+                break;
+            }
             default:
                 _logger.LogWarning("Unhandled Stripe event type {Type}", stripeEvent.Type);
                 break;

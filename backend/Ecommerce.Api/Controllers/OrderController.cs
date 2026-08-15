@@ -67,6 +67,21 @@ public class OrderController : ControllerBase
         };
     }
 
+    [HttpPost("{id:int}/refund")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> RefundOrderAsync(int id)
+    {
+        var result = await _orderService.InitiateRefundAsync(id);
+        return result.Status switch
+        {
+            OrderRefundStatus.Success => Ok("Refund initiated"),
+            OrderRefundStatus.NotFound => NotFound(),
+            OrderRefundStatus.NotRefundable => Conflict("Order is not eligible for refund"),
+            OrderRefundStatus.RefundFailed => StatusCode(502, "Refund failed with payment provider"),
+            _ => StatusCode(500),
+        };
+    }
+
     [HttpPost("{id:int}/cancel")]
     public async Task<IActionResult> CancelOrderAsync(int id)
     {
