@@ -56,8 +56,11 @@ public class WebhookController : ControllerBase
             }
             case "payment_intent.payment_failed":
             {
-                if(stripeEvent.Data.Object is PaymentIntent failedIntent)
-                   _logger.LogWarning("PaymentIntent {id} failed", failedIntent?.Id);
+                if (stripeEvent.Data.Object is PaymentIntent failedIntent)
+                {
+                    var declineReason = failedIntent.LastPaymentError?.Message ?? "unknown reason";
+                    _logger.LogWarning("PaymentIntent {Id} failed for order {OrderId}: {Reason}. Order remains Pending for retry", failedIntent.Id, failedIntent.Metadata.GetValueOrDefault("order_id","unknown"), declineReason);
+                }
                 break;
             }
             default:

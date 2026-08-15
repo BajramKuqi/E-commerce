@@ -217,7 +217,7 @@ public class OrderService : IOrderService
 
         return await UpdateStatusAsync(order.Id, OrderStatus.Paid);
     }
-
+    
     private OrderDto ToDto(Order order,string? clientSecret = null) => new()
     {
         Id = order.Id,
