@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
+import axios from 'axios'
 import { api } from '../api/client'
-import { orderStatusLabels } from '../types/Order'
+import { orderStatusLabels, OrderStatus } from '../types/Order'
 import type { OrderDto } from '../types/Order'
 
 const statusColors: Record<number, string> = {
@@ -18,8 +19,10 @@ function OrderDetailPage() {
     const [order, setOrder] = useState<OrderDto | null>(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
+    const [cancelling, setCancelling] = useState(false)
+    const [cancelError, setCancelError] = useState<string | null>(null)
 
-    useEffect(() => {
+    function fetchOrder() {
         api.get<OrderDto>(`/Order/${id}`)
             .then((response) => setOrder(response.data))
             .catch((err) => {
@@ -27,7 +30,30 @@ function OrderDetailPage() {
                 setError('Order not found')
             })
             .finally(() => setLoading(false))
+    }
+
+    useEffect(() => {
+        fetchOrder()
     }, [id])
+
+    async function handleCancel() {
+        if (!order) return
+        setCancelling(true)
+        setCancelError(null)
+
+        try {
+            await api.post(`/Order/${order.id}/cancel`)
+            fetchOrder()
+        } catch (err) {
+            if (axios.isAxiosError(err) && err.response?.status === 409) {
+                setCancelError('Only pending orders can be cancelled')
+            } else {
+                setCancelError('Could not cancel order')
+            }
+        } finally {
+            setCancelling(false)
+        }
+    }
 
     if (loading) return <p className="p-8">Loading order...</p>
     if (error || !order) return <p className="p-8 text-red-600">{error ?? 'Order not found'}</p>
@@ -52,6 +78,18 @@ function OrderDetailPage() {
                 </ul>
 
                 <p className="text-right font-bold text-gray-900 mb-6">${order.totalAmount.toFixed(2)}</p>
+
+                {cancelError && <p className="text-red-600 text-sm mb-3">{cancelError}</p>}
+
+                {order.status === OrderStatus.Pending && (
+                    <button
+                        onClick={handleCancel}
+                        disabled={cancelling}
+                        className="w-full mb-3 border border-red-300 text-red-600 hover:bg-red-50 py-2 rounded-lg disabled:opacity-50"
+                    >
+                        {cancelling ? 'Cancelling...' : 'Cancel Order'}
+                    </button>
+                )}
 
                 <Link
                     to="/orders"
