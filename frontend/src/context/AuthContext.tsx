@@ -4,6 +4,7 @@ import type { AuthResponseDto } from '../types/Auth'
 
 interface AuthContextType {
     user: AuthResponseDto | null
+    loading: boolean
     login: (auth: AuthResponseDto) => void
     logout: () => void
 }
@@ -12,12 +13,14 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<AuthResponseDto | null>(null)
+    const [loading, setLoading] = useState(true)
 
     useEffect(() => {
         const stored = localStorage.getItem('auth')
         if (stored) {
             setUser(JSON.parse(stored))
         }
+        setLoading(false)
     }, [])
 
     function login(auth: AuthResponseDto) {
@@ -31,7 +34,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     return (
-        <AuthContext.Provider value={{ user, login, logout }}>
+        <AuthContext.Provider value={{ user, loading, login, logout }}>
             {children}
         </AuthContext.Provider>
     )
