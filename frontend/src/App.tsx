@@ -1,10 +1,13 @@
 import { Routes, Route, Link } from 'react-router-dom'
 import { useEffect } from 'react'
-import { ShoppingCart } from 'lucide-react'
+import { ShoppingCart, Package } from 'lucide-react'
 import ProductsPage from './pages/ProductsPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import CartPage from './pages/CartPage'
+import CheckoutPage from './pages/CheckoutPage'
+import OrdersPage from './pages/OrdersPage'
+import OrderDetailPage from './pages/OrderDetailPage'
 import ProtectedRoute from './components/ProtectedRoute'
 import { useAuth } from './context/AuthContext'
 import { useCart } from './context/CartContext'
@@ -24,6 +27,11 @@ function App() {
                 {user && (
                     <Link to="/cart" className="flex items-center">
                         <ShoppingCart size={20} />
+                    </Link>
+                )}
+                {user && (
+                    <Link to="/orders" className="flex items-center">
+                        <Package size={20} />
                     </Link>
                 )}
                 {user ? (
@@ -48,6 +56,30 @@ function App() {
                     element={
                         <ProtectedRoute>
                             <CartPage />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/checkout"
+                    element={
+                        <ProtectedRoute>
+                            <CheckoutPage />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/orders"
+                    element={
+                        <ProtectedRoute>
+                            <OrdersPage />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/orders/:id"
+                    element={
+                        <ProtectedRoute>
+                            <OrderDetailPage />
                         </ProtectedRoute>
                     }
                 />
