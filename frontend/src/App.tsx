@@ -1,41 +1,34 @@
-import { useEffect, useState } from 'react'
-import { api } from './api/client'
-import type { Product } from './types/Product'
+import { Routes, Route, Link } from 'react-router-dom'
+import ProductsPage from './pages/ProductsPage'
+import LoginPage from './pages/LoginPage'
+import RegisterPage from './pages/RegisterPage'
+import { useAuth } from './context/AuthContext'
 
 function App() {
-    const [products, setProducts] = useState<Product[]>([])
-    const [loading, setLoading] = useState(true)
-    const [error, setError] = useState<string | null>(null)
-
-    useEffect(() => {
-        api.get('/Product')
-            .then((response) => {
-                console.log(response.data)
-                setProducts(response.data.items)
-            })
-            .catch((err) => {
-                console.error(err)
-                setError('Failed to load products')
-            })
-            .finally(() => {
-                setLoading(false)
-            })
-    }, [])
-
-    if (loading) return <p className="p-8">Loading products...</p>
-    if (error) return <p className="p-8 text-red-600">{error}</p>
+    const { user, logout } = useAuth()
 
     return (
-        <div className="min-h-screen bg-gray-50 p-8">
-            <h1 className="text-3xl font-bold text-gray-800 mb-6">Products</h1>
-            <ul className="space-y-2">
-                {products.map((product) => (
-                    <li key={product.id} className="bg-white p-4 rounded shadow">
-                        <p className="font-semibold">{product.name}</p>
-                        <p className="text-gray-600">${product.price}</p>
-                    </li>
-                ))}
-            </ul>
+        <div>
+            <nav className="bg-gray-800 text-white p-4 flex gap-4 items-center">
+                <Link to="/">Products</Link>
+                {user ? (
+                    <>
+                        <span className="ml-auto">Hi, {user.fullName}</span>
+                        <button onClick={logout} className="text-sm underline">Logout</button>
+                    </>
+                ) : (
+                    <>
+                        <Link to="/login" className="ml-auto">Login</Link>
+                        <Link to="/register">Register</Link>
+                    </>
+                )}
+            </nav>
+
+            <Routes>
+                <Route path="/" element={<ProductsPage />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
+            </Routes>
         </div>
     )
 }
