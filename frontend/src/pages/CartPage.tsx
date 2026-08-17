@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Trash2, Package, Minus, Plus } from 'lucide-react'
 import { api } from '../api/client'
 import { useCart } from '../context/CartContext'
@@ -24,6 +25,7 @@ function CartPage() {
     const [error, setError] = useState<string | null>(null)
     const [removeQuantities, setRemoveQuantities] = useState<Record<number, string>>({})
     const { refreshCart } = useCart()
+    const navigate = useNavigate()
 
     function fetchCart() {
         api.get<CartDto>('/Cart')
@@ -150,7 +152,15 @@ function CartPage() {
                 ))}
             </div>
 
-            <p className="text-xl font-bold text-right mt-8">Total: ${cart.total.toFixed(2)}</p>
+            <div className="flex items-center justify-between mt-8">
+                <p className="text-xl font-bold">Total: ${cart.total.toFixed(2)}</p>
+                <button
+                    onClick={() => navigate('/checkout')}
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg"
+                >
+                    Checkout
+                </button>
+            </div>
         </div>
     )
 }
