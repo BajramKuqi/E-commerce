@@ -103,7 +103,7 @@ public class OrderController : ControllerBase
         return Ok(orders);
     }
 
-    [HttpGet("{id:int}/restock")]
+    [HttpPost("{id:int}/restock")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> RestockOrderAsync(int id)
     {

@@ -40,6 +40,7 @@ export interface AdminOrderDto {
     userFullName: string
     userEmail: string
     status: OrderStatus
+    isRestocked: boolean
     totalPrice: number
     createdAt: string
     items: OrderItemDto[]

@@ -105,6 +105,23 @@ function AdminOrdersPage() {
         }
     }
 
+    async function restockOrder(orderId: number) {
+        setActionError(null)
+        setBusyOrderId(orderId)
+        try {
+            await api.post(`/Order/${orderId}/restock`)
+            loadOrders()
+        } catch (err) {
+            if (axios.isAxiosError(err) && err.response?.status === 409) {
+                setActionError(`Order #${orderId}: ${err.response?.data ?? 'cannot be restocked'}`)
+            } else {
+                setActionError(`Order #${orderId}: failed to restock`)
+            }
+        } finally {
+            setBusyOrderId(null)
+        }
+    }
+
     const totalPages = Math.max(1, Math.ceil(totalCount / pageSize))
 
     if (error) return <p className="p-8 text-red-600">{error}</p>
@@ -151,6 +168,7 @@ function AdminOrdersPage() {
                     {orders.map((order) => {
                         const nextStatuses: OrderStatus[] = validTransitions[order.status]
                         const isRefundable = refundableStatuses.includes(order.status)
+                        const isRestockable = order.status === OrderStatus.Refunded && !order.isRestocked
                         const busy = busyOrderId === order.id
 
                         return (
@@ -199,6 +217,15 @@ function AdminOrdersPage() {
                                                 className="text-xs font-medium px-3 py-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 disabled:opacity-50"
                                             >
                                                 Refund
+                                            </button>
+                                        )}
+                                        {isRestockable && (
+                                            <button
+                                                disabled={busy}
+                                                onClick={() => restockOrder(order.id)}
+                                                className="text-xs font-medium px-3 py-1.5 rounded-lg bg-green-50 text-green-700 hover:bg-green-100 disabled:opacity-50"
+                                            >
+                                                Mark Returned & Restock
                                             </button>
                                         )}
                                     </div>
