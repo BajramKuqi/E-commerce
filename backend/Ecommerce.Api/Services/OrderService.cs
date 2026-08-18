@@ -257,6 +257,25 @@ public class OrderService : IOrderService
         return await UpdateStatusAsync(order.Id, OrderStatus.Refunded);
     }
 
+    public async Task<OrderRestockResult> RestockOrderAsync(int orderId)
+    {
+        var order = await _context.Orders.Include(o => o.Items).FirstOrDefaultAsync(o => o.Id == orderId);
+        if(order == null)
+            return OrderRestockResult.NotFound();
+        
+        if(order.Status != OrderStatus.Refunded)
+            return OrderRestockResult.NotRefunded();
+
+        if (order.IsRestocked)
+            return OrderRestockResult.AlreadyRestocked();
+        
+        await ReleaseStockAsync(order);
+        order.IsRestocked = true;
+        await _context.SaveChangesAsync();
+        
+        return OrderRestockResult.Success(ToDto(order));
+    }
+
     private OrderDto ToDto(Order order,string? clientSecret = null) => new()
     {
         Id = order.Id,
@@ -280,6 +299,7 @@ public class OrderService : IOrderService
         UserFullName =  order.User.FullName,
         UserEmail = order.User.Email ?? "(no email)",
         Status = order.Status,
+        IsRestocked = order.IsRestocked,
         TotalPrice = order.TotalAmount,
         CreatedAt = order.CreatedAt,
         Items = order.Items.Select(i => new OrderItemDto
