@@ -15,4 +15,5 @@ public interface IOrderService
     Task<OrderStatusUpdateResult> MarkOrderPaidByPaymentIntentAsync(string paymentIntentId);
     Task<OrderRefundResult> InitiateRefundAsync(int orderId);
     Task<OrderStatusUpdateResult> MarkOrderRefundedByPaymentIntentAsync(string paymentIntentId);
+    Task<OrderRestockResult> RestockOrderAsync(int orderId);
 }

@@ -102,4 +102,19 @@ public class OrderController : ControllerBase
         var orders = await _orderService.GetAllOrdersAsync(queryDto);
         return Ok(orders);
     }
+
+    [HttpGet("{id:int}/restock")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> RestockOrderAsync(int id)
+    {
+        var result = await _orderService.RestockOrderAsync(id);
+        return result.Status switch
+        {
+            OrderRestockStatus.Success => Ok(result.Order),
+            OrderRestockStatus.NotFound => NotFound(),
+            OrderRestockStatus.NotRefunded => Conflict("Only refunded orders can be restocked"),
+            OrderRestockStatus.AlreadyRestocked => Conflict("This order has already been restocked"),
+            _ => StatusCode(500)
+        };
+    }
 }

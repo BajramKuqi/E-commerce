@@ -10,6 +10,7 @@ public class Order
     public decimal TotalAmount { get; set; }
     public DateTime CreatedAt { get; set; }
     public string? StripePaymentIntentId { get; set; }
+    public bool IsRestocked { get; set; } = false;
     
     public ICollection<OrderItem> Items { get; set; } = new List<OrderItem>();
 }
