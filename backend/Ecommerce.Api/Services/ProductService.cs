@@ -17,7 +17,7 @@ public class ProductService : IProductService
 
     public async Task<PagedResult<ProductDto>> GetAllAsync(int page, int pageSize, int? categoryId)
     {
-        var query = _dbContext.Products.Include(p => p.Category).AsQueryable();
+        var query = _dbContext.Products.Include(p => p.Category).Include(p => p.Images).AsQueryable();
 
         if (categoryId.HasValue)
             query = query.Where(p => p.CategoryId == categoryId.Value);
@@ -38,7 +38,7 @@ public class ProductService : IProductService
 
     public async Task<ProductDto?> GetByIdAsync(int id)
     {
-        var product = await _dbContext.Products.Include(p => p.Category).FirstOrDefaultAsync(p => p.Id == id);
+        var product = await _dbContext.Products.Include(p => p.Category).Include(p => p.Images).FirstOrDefaultAsync(p => p.Id == id);
 
         if (product == null)
             return null;
@@ -102,6 +102,30 @@ public class ProductService : IProductService
         return true;
     }
 
+    public async Task<ProductDto?> AddImageAsync(int productId, IFormFile file, IImageStorageService storage)
+    {
+        var product = await _dbContext.Products.Include(p =>p.Category).Include(p => p.Images)
+            .FirstOrDefaultAsync(p => p.Id == productId);
+        
+        if (product == null)
+            return null;
+
+        var imageUrl = await storage.UploadAsync(file);
+        
+        foreach(var existing in product.Images)
+            existing.IsPrimary = false;
+        
+        product.Images.Add(new ProductImage
+        {
+            ImageUrl =  imageUrl,
+            IsPrimary = true,
+            DisplayOrder = product.Images.Count
+        });
+        
+        await _dbContext.SaveChangesAsync();
+        return ToDto(product);
+    }
+
     private static ProductDto ToDto(Product product) => new()
     {
         Id = product.Id,
@@ -112,6 +136,7 @@ public class ProductService : IProductService
         CategoryId = product.CategoryId,
         CategoryName = product.Category.Name,
         CreatedAt = product.CreatedAt,
-        RowVersion = product.RowVersion
+        RowVersion = product.RowVersion,
+        ImageUrl = product.Images.FirstOrDefault(i => i.IsPrimary)?.ImageUrl
     };
 }

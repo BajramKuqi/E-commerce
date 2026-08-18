@@ -11,4 +11,5 @@ public class ProductDto
     public string CategoryName { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public uint RowVersion { get; set; }
+    public string? ImageUrl { get; set; }
 }
