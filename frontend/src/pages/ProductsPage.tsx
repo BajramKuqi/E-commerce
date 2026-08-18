@@ -29,6 +29,9 @@ function ProductsPage() {
     const [quantities, setQuantities] = useState<Record<number, string>>({})
     const [categories, setCategories] = useState<Category[]>([])
     const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null)
+    const [page, setPage] = useState(1)
+    const pageSize = 12
+    const [totalCount, setTotalCount] = useState(0)
     const { user } = useAuth()
     const { cart, refreshCart } = useCart()
 
@@ -45,10 +48,15 @@ function ProductsPage() {
     useEffect(() => {
         setLoading(true)
         api.get('/Product', {
-            params: selectedCategoryId ? { categoryId: selectedCategoryId } : {},
+            params: {
+                page,
+                pageSize,
+                categoryId: selectedCategoryId ?? undefined,
+            },
         })
             .then((response) => {
                 setProducts(response.data.items)
+                setTotalCount(response.data.totalCount)
             })
             .catch((err) => {
                 console.error(err)
@@ -57,7 +65,12 @@ function ProductsPage() {
             .finally(() => {
                 setLoading(false)
             })
-    }, [selectedCategoryId])
+    }, [selectedCategoryId, page])
+
+    function selectCategory(categoryId: number | null) {
+        setPage(1)
+        setSelectedCategoryId(categoryId)
+    }
 
     function inCartQuantity(productId: number) {
         return cart?.items.find((i) => i.productId === productId)?.quantity ?? 0
@@ -120,6 +133,8 @@ function ProductsPage() {
         setTimeout(() => setMessage(null), 2500)
     }
 
+    const totalPages = Math.max(1, Math.ceil(totalCount / pageSize))
+
     if (error) return <p className="p-8 text-red-600">{error}</p>
 
     return (
@@ -129,7 +144,7 @@ function ProductsPage() {
 
             <div className="flex flex-wrap gap-2 mb-6">
                 <button
-                    onClick={() => setSelectedCategoryId(null)}
+                    onClick={() => selectCategory(null)}
                     className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
                         selectedCategoryId === null
                             ? 'bg-indigo-600 text-white'
@@ -141,7 +156,7 @@ function ProductsPage() {
                 {categories.map((category) => (
                     <button
                         key={category.id}
-                        onClick={() => setSelectedCategoryId(category.id)}
+                        onClick={() => selectCategory(category.id)}
                         className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
                             selectedCategoryId === category.id
                                 ? 'bg-indigo-600 text-white'
@@ -227,6 +242,28 @@ function ProductsPage() {
                             </div>
                         )
                     })}
+                </div>
+            )}
+
+            {totalCount > 0 && (
+                <div className="flex items-center justify-center gap-4 mt-8">
+                    <button
+                        disabled={page <= 1}
+                        onClick={() => setPage((p) => p - 1)}
+                        className="text-sm px-3 py-1.5 rounded border border-gray-200 disabled:opacity-40"
+                    >
+                        Previous
+                    </button>
+                    <span className="text-sm text-gray-500">
+                        Page {page} of {totalPages}
+                    </span>
+                    <button
+                        disabled={page >= totalPages}
+                        onClick={() => setPage((p) => p + 1)}
+                        className="text-sm px-3 py-1.5 rounded border border-gray-200 disabled:opacity-40"
+                    >
+                        Next
+                    </button>
                 </div>
             )}
         </div>

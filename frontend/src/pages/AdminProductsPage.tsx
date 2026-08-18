@@ -27,6 +27,10 @@ function AdminProductsPage() {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
 
+    const [page, setPage] = useState(1)
+    const pageSize = 10
+    const [totalCount, setTotalCount] = useState(0)
+
     const [modalOpen, setModalOpen] = useState(false)
     const [editingProduct, setEditingProduct] = useState<Product | null>(null)
     const [form, setForm] = useState<ProductFormState>(emptyForm)
@@ -35,8 +39,11 @@ function AdminProductsPage() {
 
     useEffect(() => {
         loadCategories()
-        loadProducts()
     }, [])
+
+    useEffect(() => {
+        loadProducts()
+    }, [page])
 
     function loadCategories() {
         api.get('/Category')
@@ -46,8 +53,11 @@ function AdminProductsPage() {
 
     function loadProducts() {
         setLoading(true)
-        api.get('/Product', { params: { pageSize: 100 } })
-            .then((response) => setProducts(response.data.items))
+        api.get('/Product', { params: { page, pageSize } })
+            .then((response) => {
+                setProducts(response.data.items)
+                setTotalCount(response.data.totalCount)
+            })
             .catch((err) => {
                 console.error(err)
                 setError('Failed to load products')
@@ -149,12 +159,18 @@ function AdminProductsPage() {
 
         try {
             await api.delete(`/Product/${product.id}`)
-            loadProducts()
+            if (products.length === 1 && page > 1) {
+                setPage((p) => p - 1)
+            } else {
+                loadProducts()
+            }
         } catch (err) {
             console.error(err)
             alert('Failed to delete product')
         }
     }
+
+    const totalPages = Math.max(1, Math.ceil(totalCount / pageSize))
 
     if (error) return <p className="p-8 text-red-600">{error}</p>
 
@@ -219,6 +235,28 @@ function AdminProductsPage() {
                         ))}
                         </tbody>
                     </table>
+                </div>
+            )}
+
+            {totalCount > 0 && (
+                <div className="flex items-center justify-center gap-4 mt-6">
+                    <button
+                        disabled={page <= 1}
+                        onClick={() => setPage((p) => p - 1)}
+                        className="text-sm px-3 py-1.5 rounded border border-gray-200 disabled:opacity-40"
+                    >
+                        Previous
+                    </button>
+                    <span className="text-sm text-gray-500">
+                        Page {page} of {totalPages}
+                    </span>
+                    <button
+                        disabled={page >= totalPages}
+                        onClick={() => setPage((p) => p + 1)}
+                        className="text-sm px-3 py-1.5 rounded border border-gray-200 disabled:opacity-40"
+                    >
+                        Next
+                    </button>
                 </div>
             )}
 
