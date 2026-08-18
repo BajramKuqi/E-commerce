@@ -8,6 +8,8 @@ import CartPage from './pages/CartPage'
 import CheckoutPage from './pages/CheckoutPage'
 import OrdersPage from './pages/OrdersPage'
 import OrderDetailPage from './pages/OrderDetailPage'
+import AdminProductsPage from './pages/AdminProductsPage'
+import AdminOrdersPage from './pages/AdminOrdersPage'
 import ProtectedRoute from './components/ProtectedRoute'
 import { useAuth } from './context/AuthContext'
 import { useCart } from './context/CartContext'
@@ -15,11 +17,9 @@ import { useCart } from './context/CartContext'
 function App() {
     const { user, logout } = useAuth()
     const { refreshCart } = useCart()
-
     useEffect(() => {
         refreshCart()
     }, [user, refreshCart])
-
     return (
         <div>
             <nav className="bg-gray-800 text-white p-4 flex gap-4 items-center">
@@ -34,6 +34,16 @@ function App() {
                         <Package size={20} />
                     </Link>
                 )}
+                {user?.roles.includes('Admin') && (
+                    <Link to="/admin/products" className="flex items-center text-sm">
+                        Admin Products
+                    </Link>
+                )}
+                {user?.roles.includes('Admin') && (
+                    <Link to="/admin/orders" className="flex items-center text-sm">
+                        Admin Orders
+                    </Link>
+                )}
                 {user ? (
                     <>
                         <span className="ml-auto">Hi, {user.fullName}</span>
@@ -46,7 +56,6 @@ function App() {
                     </>
                 )}
             </nav>
-
             <Routes>
                 <Route path="/" element={<ProductsPage />} />
                 <Route path="/login" element={<LoginPage />} />
@@ -80,6 +89,22 @@ function App() {
                     element={
                         <ProtectedRoute>
                             <OrderDetailPage />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/admin/products"
+                    element={
+                        <ProtectedRoute requireAdmin>
+                            <AdminProductsPage />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/admin/orders"
+                    element={
+                        <ProtectedRoute requireAdmin>
+                            <AdminOrdersPage />
                         </ProtectedRoute>
                     }
                 />
