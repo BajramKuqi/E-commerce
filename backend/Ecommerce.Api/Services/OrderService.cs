@@ -187,13 +187,16 @@ public class OrderService : IOrderService
         var page = queryDto.Page < 1 ? 1 : queryDto.Page;
         var pageSize = queryDto.PageSize < 1 ? 20 : Math.Min(queryDto.PageSize, 100);
         
-        var orderQuery =_context.Orders.Include(o => o.Items).AsQueryable();
+        var orderQuery =_context.Orders.Include(o => o.Items).Include(o => o.User).AsQueryable();
         
         if(queryDto.Status.HasValue)
             orderQuery = orderQuery.Where(o =>o.Status == queryDto.Status.Value);
         
         if(!string.IsNullOrWhiteSpace(queryDto.UserId))
             orderQuery = orderQuery.Where(o => o.UserId == queryDto.UserId);
+        
+        if(!string.IsNullOrWhiteSpace(queryDto.Email))
+            orderQuery = orderQuery.Where(o => o.User.Email != null && o.User.Email.Contains(queryDto.Email));
         
         var totalCount = await orderQuery.CountAsync();
 
@@ -274,6 +277,8 @@ public class OrderService : IOrderService
     {
         Id = order.Id,
         UserId = order.UserId,
+        UserFullName =  order.User.FullName,
+        UserEmail = order.User.Email ?? "(no email)",
         Status = order.Status,
         TotalPrice = order.TotalAmount,
         CreatedAt = order.CreatedAt,
