@@ -33,3 +33,30 @@ export interface OrderDto {
     items: OrderItemDto[]
     clientSecret?: string | null
 }
+
+export interface AdminOrderDto {
+    id: number
+    userId: string
+    userFullName: string
+    userEmail: string
+    status: OrderStatus
+    totalPrice: number
+    createdAt: string
+    items: OrderItemDto[]
+}
+
+export interface PagedResult<T> {
+    items: T[]
+    page: number
+    pageSize: number
+    totalCount: number
+}
+
+export const validTransitions: Record<OrderStatus, OrderStatus[]> = {
+    [OrderStatus.Pending]: [OrderStatus.Paid, OrderStatus.Cancelled],
+    [OrderStatus.Paid]: [OrderStatus.Shipped, OrderStatus.Refunded],
+    [OrderStatus.Shipped]: [OrderStatus.Delivered, OrderStatus.Refunded],
+    [OrderStatus.Delivered]: [OrderStatus.Refunded],
+    [OrderStatus.Cancelled]: [],
+    [OrderStatus.Refunded]: [],
+}
