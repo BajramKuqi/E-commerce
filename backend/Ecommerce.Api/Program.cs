@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Stripe;
 using ProductService = Ecommerce.Api.Services.ProductService;
+using Minio;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -60,11 +61,24 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 
+builder.Services.AddSingleton<IMinioClient>(_ => new MinioClient()
+    .WithEndpoint("localhost:9000")
+    .WithCredentials("minioadmin", "minioadmin")
+    .WithSSL(false)
+    .Build());
+builder.Services.AddScoped<IImageStorageService, MinioImageStorageService>();
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
     await RoleSeeder.SeedRolesAsync(scope.ServiceProvider);
+}
+
+using (var scope = app.Services.CreateScope())
+{
+    var storage = scope.ServiceProvider.GetRequiredService<IImageStorageService>();
+    await storage.EnsureBucketExistsAsync();
 }
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

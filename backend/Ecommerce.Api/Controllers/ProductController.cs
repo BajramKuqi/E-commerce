@@ -68,4 +68,15 @@ public class ProductController : ControllerBase
         
         return NoContent();
     }
+
+    [HttpPost("{id:int}/image")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> UploadImage(int id, IFormFile file, [FromServices] IImageStorageService storage)
+    {
+        var product = await _productService.AddImageAsync(id, file,storage);
+        if (product == null)
+            return NotFound();
+        
+        return Ok(product);
+    }
 }
