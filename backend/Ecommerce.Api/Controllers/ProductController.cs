@@ -79,4 +79,14 @@ public class ProductController : ControllerBase
         
         return Ok(product);
     }
+
+    [HttpDelete("{id:int}/image/{imageId:int}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> DeleteImage(int id, int imageId, [FromServices] IImageStorageService storage)
+    {
+        var product = await _productService.DeleteImageAsync(id, imageId, storage);
+        if (product == null)
+            return NotFound();
+        return Ok(product);
+    }
 }

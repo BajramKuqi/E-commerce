@@ -52,4 +52,10 @@ public class MinioImageStorageService : IImageStorageService
         
         return $"http://localhost:9000/{BucketName}/{objectName}";
     }
+
+    public async Task DeleteAsync(string imageUrl)
+    {
+        var objectName = imageUrl.Split('/').Last();
+        await _minioClient.RemoveObjectAsync(new RemoveObjectArgs().WithBucket(BucketName).WithObject(objectName));
+    }
 }
