@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import axios from 'axios'
 import { Elements } from '@stripe/react-stripe-js'
 import { api } from '../api/client'
@@ -6,17 +7,27 @@ import { stripePromise } from '../stripe'
 import StripeCheckoutForm from '../components/StripeCheckoutForm'
 import type { OrderDto } from '../types/Order'
 
+interface CheckoutLocationState {
+    productIds?: number[]
+}
+
 function CheckoutPage() {
     const [order, setOrder] = useState<OrderDto | null>(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
     const hasStarted = useRef(false)
+    const location = useLocation()
 
     useEffect(() => {
         if (hasStarted.current) return
         hasStarted.current = true
 
-        api.post<OrderDto>('/Order/checkout')
+        const state = location.state as CheckoutLocationState | null
+        const productIds = state?.productIds
+
+        const body = productIds && productIds.length > 0 ? { productIds } : undefined
+
+        api.post<OrderDto>('/Order/checkout', body)
             .then((response) => {
                 setOrder(response.data)
             })
@@ -44,7 +55,6 @@ function CheckoutPage() {
         <div className="min-h-screen bg-gray-50 p-8 flex justify-center">
             <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 w-full max-w-md">
                 <h1 className="text-2xl font-bold text-gray-800 mb-4">Checkout</h1>
-
                 <ul className="space-y-1 mb-4 text-sm text-gray-600">
                     {order.items.map((item) => (
                         <li key={item.productId} className="flex justify-between">
@@ -54,7 +64,6 @@ function CheckoutPage() {
                     ))}
                 </ul>
                 <p className="font-bold text-right mb-6">Total: ${order.totalAmount.toFixed(2)}</p>
-
                 <Elements stripe={stripePromise} options={{ clientSecret: order.clientSecret }}>
                     <StripeCheckoutForm orderId={order.id} />
                 </Elements>
