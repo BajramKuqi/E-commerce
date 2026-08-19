@@ -6,7 +6,7 @@ namespace Ecommerce.Api.Services;
 
 public interface IOrderService
 {
-    Task<OrderCheckoutResult> CheckoutAsync(string userId);
+    Task<OrderCheckoutResult> CheckoutAsync(string userId, List<int>? productIds = null);
     Task<List<OrderDto>> GetOrderAsync(string userId);
     Task<OrderDto?> GetOrderByIdAsync(string userId,int orderId);
     Task<OrderStatusUpdateResult> UpdateStatusAsync(int orderId, OrderStatus newStatus);
