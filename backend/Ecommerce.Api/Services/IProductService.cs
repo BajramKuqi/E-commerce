@@ -11,4 +11,5 @@ public interface IProductService
     Task<ProductUpdateResult> UpdateAsync(int id, UpdateProductDto updateProduct);
     Task<bool> DeleteAsync(int id);
     Task<ProductDto?> AddImageAsync(int productId, IFormFile file, IImageStorageService storage);
+    Task<ProductDto?> DeleteImageAsync(int productId, int imageId,IImageStorageService storage);
 }

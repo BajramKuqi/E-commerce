@@ -12,4 +12,5 @@ public class ProductDto
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public uint RowVersion { get; set; }
     public string? ImageUrl { get; set; }
+    public List<ProductImageDto> Images { get; set; } = new();
 }

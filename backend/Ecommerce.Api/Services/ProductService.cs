@@ -126,6 +126,34 @@ public class ProductService : IProductService
         return ToDto(product);
     }
 
+    public async Task<ProductDto?> DeleteImageAsync(int productId, int imageId, IImageStorageService storage)
+    {
+        var product = await _dbContext.Products.Include(p => p.Category).Include(p => p.Images).FirstOrDefaultAsync(p => p.Id == productId);
+        
+        if (product == null)
+            return null;
+        
+        var image = product.Images.FirstOrDefault(i => i.Id == imageId);
+        if (image == null)
+            return null;
+        
+        await storage.DeleteAsync(image.ImageUrl);
+
+        var wasPrimary = image.IsPrimary;
+        product.Images.Remove(image);
+        _dbContext.ProductImages.Remove(image);
+
+        if (wasPrimary)
+        {
+            var next = product.Images.OrderBy(i => i.DisplayOrder).FirstOrDefault();
+            
+            if(next != null)
+                next.IsPrimary = true;
+        }
+        await _dbContext.SaveChangesAsync();
+        return ToDto(product);
+    }
+
     private static ProductDto ToDto(Product product) => new()
     {
         Id = product.Id,
@@ -137,6 +165,13 @@ public class ProductService : IProductService
         CategoryName = product.Category.Name,
         CreatedAt = product.CreatedAt,
         RowVersion = product.RowVersion,
-        ImageUrl = product.Images.FirstOrDefault(i => i.IsPrimary)?.ImageUrl
+        ImageUrl = product.Images.FirstOrDefault(i => i.IsPrimary)?.ImageUrl,
+        Images = product.Images.OrderBy(i => i.DisplayOrder).Select(i => new ProductImageDto
+        {
+            Id = i.Id,
+            ImageUrl = i.ImageUrl,
+            IsPrimary = i.IsPrimary,
+            DisplayOrder = i.DisplayOrder
+        }).ToList()
     };
 }
