@@ -42,6 +42,7 @@ function AdminProductsPage() {
     const [deletingImageId, setDeletingImageId] = useState<number | null>(null)
     const [pendingFiles, setPendingFiles] = useState<File[]>([])
     const [pendingPreviews, setPendingPreviews] = useState<string[]>([])
+    const [brokenImageIds, setBrokenImageIds] = useState<Set<number>>(new Set())
 
     useEffect(() => {
         loadCategories()
@@ -77,6 +78,10 @@ function AdminProductsPage() {
                 setError('Failed to load products')
             })
             .finally(() => setLoading(false))
+    }
+
+    function markImageBroken(productId: number) {
+        setBrokenImageIds((prev) => new Set(prev).add(productId))
     }
 
     function openCreateModal() {
@@ -287,46 +292,54 @@ function AdminProductsPage() {
                         </tr>
                         </thead>
                         <tbody>
-                        {products.map((product) => (
-                            <tr key={product.id} className="border-t border-gray-100">
-                                <td className="px-4 py-3">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded bg-gray-100 flex items-center justify-center overflow-hidden shrink-0">
-                                            {product.imageUrl ? (
-                                                <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
-                                            ) : (
-                                                <Package className="text-gray-300" size={18} />
-                                            )}
+                        {products.map((product) => {
+                            const showImage = product.imageUrl && !brokenImageIds.has(product.id)
+                            return (
+                                <tr key={product.id} className="border-t border-gray-100">
+                                    <td className="px-4 py-3">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded bg-gray-100 flex items-center justify-center overflow-hidden shrink-0">
+                                                {showImage ? (
+                                                    <img
+                                                        src={product.imageUrl}
+                                                        alt={product.name}
+                                                        className="w-full h-full object-cover"
+                                                        onError={() => markImageBroken(product.id)}
+                                                    />
+                                                ) : (
+                                                    <Package className="text-gray-300" size={18} />
+                                                )}
+                                            </div>
+                                            <div>
+                                                <p className="font-medium text-gray-800">{product.name}</p>
+                                                {product.description && (
+                                                    <p className="text-xs text-gray-400 line-clamp-1">{product.description}</p>
+                                                )}
+                                            </div>
                                         </div>
-                                        <div>
-                                            <p className="font-medium text-gray-800">{product.name}</p>
-                                            {product.description && (
-                                                <p className="text-xs text-gray-400 line-clamp-1">{product.description}</p>
-                                            )}
+                                    </td>
+                                    <td className="px-4 py-3 text-gray-600">{product.categoryName}</td>
+                                    <td className="px-4 py-3 text-right text-gray-800">${product.price}</td>
+                                    <td className="px-4 py-3 text-right text-gray-600">{product.stockQuantity}</td>
+                                    <td className="px-4 py-3">
+                                        <div className="flex items-center justify-end gap-2">
+                                            <button
+                                                onClick={() => openEditModal(product)}
+                                                className="p-1.5 rounded hover:bg-gray-100 text-gray-500"
+                                            >
+                                                <Pencil size={16} />
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(product)}
+                                                className="p-1.5 rounded hover:bg-red-50 text-red-500"
+                                            >
+                                                <Trash2 size={16} />
+                                            </button>
                                         </div>
-                                    </div>
-                                </td>
-                                <td className="px-4 py-3 text-gray-600">{product.categoryName}</td>
-                                <td className="px-4 py-3 text-right text-gray-800">${product.price}</td>
-                                <td className="px-4 py-3 text-right text-gray-600">{product.stockQuantity}</td>
-                                <td className="px-4 py-3">
-                                    <div className="flex items-center justify-end gap-2">
-                                        <button
-                                            onClick={() => openEditModal(product)}
-                                            className="p-1.5 rounded hover:bg-gray-100 text-gray-500"
-                                        >
-                                            <Pencil size={16} />
-                                        </button>
-                                        <button
-                                            onClick={() => handleDelete(product)}
-                                            className="p-1.5 rounded hover:bg-red-50 text-red-500"
-                                        >
-                                            <Trash2 size={16} />
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        ))}
+                                    </td>
+                                </tr>
+                            )
+                        })}
                         </tbody>
                     </table>
                 </div>
