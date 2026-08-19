@@ -181,8 +181,12 @@ function ProductsPage() {
                                 key={product.id}
                                 className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col hover:shadow-md transition-shadow"
                             >
-                                <div className="h-36 bg-gray-100 flex items-center justify-center">
-                                    <Package className="text-gray-300" size={40} />
+                                <div className="h-36 bg-gray-100 flex items-center justify-center overflow-hidden">
+                                    {product.imageUrl ? (
+                                        <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
+                                    ) : (
+                                        <Package className="text-gray-300" size={40} />
+                                    )}
                                 </div>
 
                                 <div className="p-4 flex flex-col flex-1">

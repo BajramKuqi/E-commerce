@@ -8,4 +8,5 @@ export interface Product {
     categoryName: string;
     createdAt: string;
     rowVersion: number;
+    imageUrl?: string;
 }
