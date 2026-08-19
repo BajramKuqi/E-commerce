@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
-import { Pencil, Trash2, Plus, X } from 'lucide-react'
+import { Pencil, Trash2, Plus, X, Package, Upload } from 'lucide-react'
 import { api } from '../api/client'
 import type { Product } from '../types/Product'
 import type { Category } from '../types/Category'
@@ -37,6 +37,9 @@ function AdminProductsPage() {
     const [formError, setFormError] = useState<string | null>(null)
     const [submitting, setSubmitting] = useState(false)
 
+    const [imageUploading, setImageUploading] = useState(false)
+    const [imageError, setImageError] = useState<string | null>(null)
+
     useEffect(() => {
         loadCategories()
     }, [])
@@ -69,6 +72,7 @@ function AdminProductsPage() {
         setEditingProduct(null)
         setForm(emptyForm)
         setFormError(null)
+        setImageError(null)
         setModalOpen(true)
     }
 
@@ -82,6 +86,7 @@ function AdminProductsPage() {
             categoryId: String(product.categoryId),
         })
         setFormError(null)
+        setImageError(null)
         setModalOpen(true)
     }
 
@@ -90,10 +95,37 @@ function AdminProductsPage() {
         setEditingProduct(null)
         setForm(emptyForm)
         setFormError(null)
+        setImageError(null)
     }
 
     function updateField(field: keyof ProductFormState, value: string) {
         setForm((prev) => ({ ...prev, [field]: value }))
+    }
+
+    async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+        if (!editingProduct) return
+        const file = e.target.files?.[0]
+        if (!file) return
+
+        setImageError(null)
+        setImageUploading(true)
+
+        const formData = new FormData()
+        formData.append('file', file)
+
+        try {
+            const response = await api.post<Product>(`/Product/${editingProduct.id}/image`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+            })
+            setEditingProduct(response.data)
+            setProducts((prev) => prev.map((p) => (p.id === response.data.id ? response.data : p)))
+        } catch (err) {
+            console.error(err)
+            setImageError('Failed to upload image')
+        } finally {
+            setImageUploading(false)
+            e.target.value = ''
+        }
     }
 
     async function handleSubmit(e: React.FormEvent) {
@@ -207,10 +239,21 @@ function AdminProductsPage() {
                         {products.map((product) => (
                             <tr key={product.id} className="border-t border-gray-100">
                                 <td className="px-4 py-3">
-                                    <p className="font-medium text-gray-800">{product.name}</p>
-                                    {product.description && (
-                                        <p className="text-xs text-gray-400 line-clamp-1">{product.description}</p>
-                                    )}
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded bg-gray-100 flex items-center justify-center overflow-hidden shrink-0">
+                                            {product.imageUrl ? (
+                                                <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
+                                            ) : (
+                                                <Package className="text-gray-300" size={18} />
+                                            )}
+                                        </div>
+                                        <div>
+                                            <p className="font-medium text-gray-800">{product.name}</p>
+                                            {product.description && (
+                                                <p className="text-xs text-gray-400 line-clamp-1">{product.description}</p>
+                                            )}
+                                        </div>
+                                    </div>
                                 </td>
                                 <td className="px-4 py-3 text-gray-600">{product.categoryName}</td>
                                 <td className="px-4 py-3 text-right text-gray-800">${product.price}</td>
@@ -271,6 +314,32 @@ function AdminProductsPage() {
                                 <X size={20} />
                             </button>
                         </div>
+
+                        {editingProduct && (
+                            <div className="mb-4 flex items-center gap-3">
+                                <div className="w-16 h-16 rounded bg-gray-100 flex items-center justify-center overflow-hidden shrink-0 border border-gray-200">
+                                    {editingProduct.imageUrl ? (
+                                        <img src={editingProduct.imageUrl} alt={editingProduct.name} className="w-full h-full object-cover" />
+                                    ) : (
+                                        <Package className="text-gray-300" size={24} />
+                                    )}
+                                </div>
+                                <div>
+                                    <label className="flex items-center gap-2 text-xs font-medium text-indigo-600 hover:text-indigo-700 cursor-pointer">
+                                        <Upload size={14} />
+                                        {imageUploading ? 'Uploading...' : 'Upload Image'}
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={handleImageUpload}
+                                            disabled={imageUploading}
+                                            className="hidden"
+                                        />
+                                    </label>
+                                    {imageError && <p className="text-red-600 text-xs mt-1">{imageError}</p>}
+                                </div>
+                            </div>
+                        )}
 
                         <form onSubmit={handleSubmit} className="space-y-3">
                             <div>
