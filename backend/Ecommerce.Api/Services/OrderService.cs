@@ -17,12 +17,18 @@ public class OrderService : IOrderService
         _context = context;
     }
 
-    public async Task<OrderCheckoutResult> CheckoutAsync(string userId)
+    public async Task<OrderCheckoutResult> CheckoutAsync(string userId, List<int>? productIds = null)
     {
         var cart = await _context.Carts.Include(c => c.Items)
             .ThenInclude(i => i.Product).FirstOrDefaultAsync(c => c.UserId == userId);
 
         if (cart == null || cart.Items.Count == 0)
+            return OrderCheckoutResult.CartEmpty();
+        
+        var itemsToCheckout = productIds is { Count: > 0 }
+            ? cart.Items.Where(i => productIds.Contains(i.ProductId)).ToList() : cart.Items.ToList();
+
+        if (itemsToCheckout.Count == 0)
             return OrderCheckoutResult.CartEmpty();
 
         var order = new Order
@@ -65,7 +71,11 @@ public class OrderService : IOrderService
 
         order.TotalAmount = total;
         _context.Orders.Add(order);
-        cart.Items.Clear();
+
+        foreach (var item in itemsToCheckout)
+        {
+            cart.Items.Remove(item);
+        }
 
         try
         {

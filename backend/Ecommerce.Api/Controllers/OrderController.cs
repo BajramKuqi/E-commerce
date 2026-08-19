@@ -24,9 +24,9 @@ public class OrderController : ControllerBase
     private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
     [HttpPost("checkout")]
-    public async Task<IActionResult> Checkout()
+    public async Task<IActionResult> Checkout([FromBody] CheckoutDto? checkoutDto)
     {
-        var result = await _orderService.CheckoutAsync(UserId);
+        var result = await _orderService.CheckoutAsync(UserId, checkoutDto?.ProductIds);
         return result.Status switch
         {
             OrderCheckoutStatus.Success => Ok(result.Order),
