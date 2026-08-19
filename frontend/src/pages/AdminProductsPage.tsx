@@ -39,6 +39,9 @@ function AdminProductsPage() {
 
     const [imageUploading, setImageUploading] = useState(false)
     const [imageError, setImageError] = useState<string | null>(null)
+    const [deletingImageId, setDeletingImageId] = useState<number | null>(null)
+    const [pendingFiles, setPendingFiles] = useState<File[]>([])
+    const [pendingPreviews, setPendingPreviews] = useState<string[]>([])
 
     useEffect(() => {
         loadCategories()
@@ -47,6 +50,14 @@ function AdminProductsPage() {
     useEffect(() => {
         loadProducts()
     }, [page])
+
+    useEffect(() => {
+        const urls = pendingFiles.map((file) => URL.createObjectURL(file))
+        setPendingPreviews(urls)
+        return () => {
+            urls.forEach((url) => URL.revokeObjectURL(url))
+        }
+    }, [pendingFiles])
 
     function loadCategories() {
         api.get('/Category')
@@ -73,6 +84,7 @@ function AdminProductsPage() {
         setForm(emptyForm)
         setFormError(null)
         setImageError(null)
+        setPendingFiles([])
         setModalOpen(true)
     }
 
@@ -87,6 +99,7 @@ function AdminProductsPage() {
         })
         setFormError(null)
         setImageError(null)
+        setPendingFiles([])
         setModalOpen(true)
     }
 
@@ -96,10 +109,23 @@ function AdminProductsPage() {
         setForm(emptyForm)
         setFormError(null)
         setImageError(null)
+        setPendingFiles([])
     }
 
     function updateField(field: keyof ProductFormState, value: string) {
         setForm((prev) => ({ ...prev, [field]: value }))
+    }
+
+    function handlePendingFilesSelected(e: React.ChangeEvent<HTMLInputElement>) {
+        const files = e.target.files
+        if (!files || files.length === 0) return
+        const selected = Array.from(files)
+        e.target.value = ''
+        setPendingFiles((prev) => [...prev, ...selected])
+    }
+
+    function removePendingFile(index: number) {
+        setPendingFiles((prev) => prev.filter((_, i) => i !== index))
     }
 
     async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -125,6 +151,22 @@ function AdminProductsPage() {
         } finally {
             setImageUploading(false)
             e.target.value = ''
+        }
+    }
+
+    async function handleDeleteImage(imageId: number) {
+        if (!editingProduct) return
+        setImageError(null)
+        setDeletingImageId(imageId)
+        try {
+            const response = await api.delete<Product>(`/Product/${editingProduct.id}/image/${imageId}`)
+            setEditingProduct(response.data)
+            setProducts((prev) => prev.map((p) => (p.id === response.data.id ? response.data : p)))
+        } catch (err) {
+            console.error(err)
+            setImageError('Failed to delete image')
+        } finally {
+            setDeletingImageId(null)
         }
     }
 
@@ -167,7 +209,16 @@ function AdminProductsPage() {
                     rowVersion: editingProduct.rowVersion,
                 })
             } else {
-                await api.post('/Product', payload)
+                const createResponse = await api.post<Product>('/Product', payload)
+                const newProductId = createResponse.data.id
+
+                for (const file of pendingFiles) {
+                    const formData = new FormData()
+                    formData.append('file', file)
+                    await api.post(`/Product/${newProductId}/image`, formData, {
+                        headers: { 'Content-Type': 'multipart/form-data' },
+                    })
+                }
             }
             closeModal()
             loadProducts()
@@ -316,28 +367,82 @@ function AdminProductsPage() {
                         </div>
 
                         {editingProduct && (
-                            <div className="mb-4 flex items-center gap-3">
-                                <div className="w-16 h-16 rounded bg-gray-100 flex items-center justify-center overflow-hidden shrink-0 border border-gray-200">
-                                    {editingProduct.imageUrl ? (
-                                        <img src={editingProduct.imageUrl} alt={editingProduct.name} className="w-full h-full object-cover" />
-                                    ) : (
-                                        <Package className="text-gray-300" size={24} />
-                                    )}
-                                </div>
-                                <div>
-                                    <label className="flex items-center gap-2 text-xs font-medium text-indigo-600 hover:text-indigo-700 cursor-pointer">
-                                        <Upload size={14} />
-                                        {imageUploading ? 'Uploading...' : 'Upload Image'}
-                                        <input
-                                            type="file"
-                                            accept="image/*"
-                                            onChange={handleImageUpload}
-                                            disabled={imageUploading}
-                                            className="hidden"
-                                        />
-                                    </label>
-                                    {imageError && <p className="text-red-600 text-xs mt-1">{imageError}</p>}
-                                </div>
+                            <div className="mb-4">
+                                {editingProduct.images.length > 0 && (
+                                    <div className="flex flex-wrap gap-2 mb-2">
+                                        {editingProduct.images
+                                            .slice()
+                                            .sort((a, b) => a.displayOrder - b.displayOrder)
+                                            .map((image) => (
+                                                <div
+                                                    key={image.id}
+                                                    className="relative w-14 h-14 rounded bg-gray-100 border border-gray-200 overflow-hidden"
+                                                >
+                                                    <img src={image.imageUrl} alt="" className="w-full h-full object-cover" />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleDeleteImage(image.id)}
+                                                        disabled={deletingImageId === image.id}
+                                                        className="absolute top-0 right-0 bg-black/60 text-white rounded-bl p-0.5 disabled:opacity-50"
+                                                    >
+                                                        <X size={10} />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                    </div>
+                                )}
+
+                                <label className="flex items-center gap-2 text-xs font-medium text-indigo-600 hover:text-indigo-700 cursor-pointer w-fit">
+                                    <Upload size={14} />
+                                    {imageUploading ? 'Uploading...' : 'Add Image'}
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleImageUpload}
+                                        disabled={imageUploading}
+                                        className="hidden"
+                                    />
+                                </label>
+                                {imageError && <p className="text-red-600 text-xs mt-1">{imageError}</p>}
+                            </div>
+                        )}
+
+                        {!editingProduct && (
+                            <div className="mb-4">
+                                <label className="flex items-center gap-2 text-xs font-medium text-indigo-600 hover:text-indigo-700 cursor-pointer w-fit">
+                                    <Upload size={14} />
+                                    Add Images
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        multiple
+                                        onChange={handlePendingFilesSelected}
+                                        className="hidden"
+                                    />
+                                </label>
+
+                                <p className="text-xs text-gray-400 mt-1">Pending files: {pendingFiles.length}</p>
+
+                                {pendingFiles.length > 0 && (
+                                    <div className="flex flex-wrap gap-2 mt-2">
+                                        {pendingFiles.map((file, index) => (
+                                            <div key={index} className="relative w-14 h-14 rounded bg-gray-100 border border-gray-200 overflow-hidden">
+                                                <img
+                                                    src={pendingPreviews[index]}
+                                                    alt={file.name}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removePendingFile(index)}
+                                                    className="absolute top-0 right-0 bg-black/60 text-white rounded-bl p-0.5"
+                                                >
+                                                    <X size={10} />
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         )}
 
