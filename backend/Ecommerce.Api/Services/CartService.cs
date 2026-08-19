@@ -93,7 +93,7 @@ public class CartService : ICartService
     private async Task<Cart> GetOrCreateCartAsync(string userId)
     {
         var cart = await  _dbContext.Carts.Include(c => c.Items)
-            .ThenInclude(i => i.Product)
+            .ThenInclude(i => i.Product).ThenInclude(p => p.Images)
             .FirstOrDefaultAsync(c => c.UserId == userId);
         
         if (cart != null)
@@ -113,6 +113,7 @@ public class CartService : ICartService
         {
             ProductId = i.ProductId,
             ProductName = i.Product.Name,
+            ImageUrl = i.Product.Images.FirstOrDefault(img => img.IsPrimary)?.ImageUrl,
             UnitPrice = i.Product.Price,
             Quantity = i.Quantity
         }).ToList()
