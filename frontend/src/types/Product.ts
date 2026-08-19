@@ -1,3 +1,5 @@
+import type {ProductImage} from "./ProductImage.ts";
+
 export interface Product {
     id: number;
     name: string;
@@ -9,4 +11,5 @@ export interface Product {
     createdAt: string;
     rowVersion: number;
     imageUrl?: string;
+    images: ProductImage[];
 }
