@@ -4,6 +4,7 @@ import { ShoppingCart, Package, Minus, Plus } from 'lucide-react'
 import { api } from '../api/client'
 import { useAuth } from '../context/AuthContext'
 import { useCart } from '../context/CartContext'
+import ProductDetailModal from '../pages/ProductDetailModal'
 import type { Product } from '../types/Product'
 import type { Category } from '../types/Category'
 
@@ -32,6 +33,8 @@ function ProductsPage() {
     const [page, setPage] = useState(1)
     const pageSize = 12
     const [totalCount, setTotalCount] = useState(0)
+    const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
+    const [brokenImageIds, setBrokenImageIds] = useState<Set<number>>(new Set())
     const { user } = useAuth()
     const { cart, refreshCart } = useCart()
 
@@ -70,6 +73,10 @@ function ProductsPage() {
     function selectCategory(categoryId: number | null) {
         setPage(1)
         setSelectedCategoryId(categoryId)
+    }
+
+    function markImageBroken(productId: number) {
+        setBrokenImageIds((prev) => new Set(prev).add(productId))
     }
 
     function inCartQuantity(productId: number) {
@@ -176,14 +183,23 @@ function ProductsPage() {
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5 mt-6">
                     {products.map((product) => {
                         const stock = availableStock(product)
+                        const showImage = product.imageUrl && !brokenImageIds.has(product.id)
                         return (
                             <div
                                 key={product.id}
                                 className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col hover:shadow-md transition-shadow"
                             >
-                                <div className="h-36 bg-gray-100 flex items-center justify-center overflow-hidden">
-                                    {product.imageUrl ? (
-                                        <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
+                                <div
+                                    className="h-36 bg-gray-100 flex items-center justify-center overflow-hidden cursor-pointer"
+                                    onClick={() => setSelectedProduct(product)}
+                                >
+                                    {showImage ? (
+                                        <img
+                                            src={product.imageUrl}
+                                            alt={product.name}
+                                            className="w-full h-full object-cover"
+                                            onError={() => markImageBroken(product.id)}
+                                        />
                                     ) : (
                                         <Package className="text-gray-300" size={40} />
                                     )}
@@ -269,6 +285,13 @@ function ProductsPage() {
                         Next
                     </button>
                 </div>
+            )}
+
+            {selectedProduct && (
+                <ProductDetailModal
+                    product={selectedProduct}
+                    onClose={() => setSelectedProduct(null)}
+                />
             )}
         </div>
     )
