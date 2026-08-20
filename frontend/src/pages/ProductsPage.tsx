@@ -180,7 +180,7 @@ function ProductsPage() {
             ) : products.length === 0 ? (
                 <p className="text-gray-500 text-sm">No products in this category.</p>
             ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5 mt-6">
+                <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-4 mt-6">
                     {products.map((product) => {
                         const stock = availableStock(product)
                         const showImage = product.imageUrl && !brokenImageIds.has(product.id)
@@ -190,14 +190,14 @@ function ProductsPage() {
                                 className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col hover:shadow-md transition-shadow"
                             >
                                 <div
-                                    className="h-36 bg-gray-100 flex items-center justify-center overflow-hidden cursor-pointer"
+                                    className="h-32 bg-white p-1 flex items-center justify-center overflow-hidden cursor-pointer"
                                     onClick={() => setSelectedProduct(product)}
                                 >
                                     {showImage ? (
                                         <img
                                             src={product.imageUrl}
                                             alt={product.name}
-                                            className="w-full h-full object-cover"
+                                            className="w-full h-full object-contain rounded-lg"
                                             onError={() => markImageBroken(product.id)}
                                         />
                                     ) : (

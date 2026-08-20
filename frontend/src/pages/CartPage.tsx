@@ -162,7 +162,7 @@ function CartPage() {
                 </label>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5 mt-6">
+            <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-4 mt-6">
                 {cart.items.map((item) => {
                     const showImage = item.imageUrl && !brokenImageIds.has(item.productId)
                     return (
@@ -172,7 +172,7 @@ function CartPage() {
                                 selectedProductIds.has(item.productId) ? 'border-indigo-300' : 'border-gray-100'
                             }`}
                         >
-                            <div className="h-36 bg-gray-100 flex items-center justify-center relative overflow-hidden">
+                            <div className="h-32 bg-white p-1 flex items-center justify-center relative overflow-hidden">
                                 <input
                                     type="checkbox"
                                     checked={selectedProductIds.has(item.productId)}
@@ -183,7 +183,7 @@ function CartPage() {
                                     <img
                                         src={item.imageUrl}
                                         alt={item.productName}
-                                        className="w-full h-full object-cover"
+                                        className="w-full h-full object-contain rounded-lg"
                                         onError={() => markImageBroken(item.productId)}
                                     />
                                 ) : (
