@@ -169,6 +169,7 @@ public class OrderService : IOrderService
             return OrderCancelResult.NotCancellable();
         
         await ReleaseStockAsync(order);
+        await RestoreCartItemsAsync(userId, order);
         order.Status = OrderStatus.Cancelled;
         await _context.SaveChangesAsync();
         
@@ -198,10 +199,16 @@ public class OrderService : IOrderService
         var pageSize = queryDto.PageSize < 1 ? 20 : Math.Min(queryDto.PageSize, 100);
         
         var orderQuery =_context.Orders.Include(o => o.Items).Include(o => o.User).AsQueryable();
-        
-        if(queryDto.Status.HasValue)
-            orderQuery = orderQuery.Where(o =>o.Status == queryDto.Status.Value);
-        
+
+        if (queryDto.Status.HasValue)
+        {
+            orderQuery = orderQuery.Where(o => o.Status == queryDto.Status.Value);
+        }
+        else
+        {
+            orderQuery = orderQuery.Where(o => o.Status != OrderStatus.Cancelled);
+        }
+
         if(!string.IsNullOrWhiteSpace(queryDto.UserId))
             orderQuery = orderQuery.Where(o => o.UserId == queryDto.UserId);
         
@@ -255,6 +262,12 @@ public class OrderService : IOrderService
             return OrderRefundResult.RefundFailed();
         }
 
+        var statusResult = await UpdateStatusAsync(orderId, OrderStatus.Refunded);
+        if (statusResult.Status != OrderStatusUpdateStatus.Success)
+        {
+            
+        }
+
         return OrderRefundResult.Success();
     }
 
@@ -284,6 +297,35 @@ public class OrderService : IOrderService
         await _context.SaveChangesAsync();
         
         return OrderRestockResult.Success(ToDto(order));
+    }
+
+    private async Task RestoreCartItemsAsync(string userId, Order order)
+    {
+        var cart = await _context.Carts.Include(c => c.Items).FirstOrDefaultAsync(c => c.UserId == userId);
+
+        if (cart == null)
+        {
+            cart = new Cart { UserId = userId };
+            _context.Carts.Add(cart);
+        }
+
+        foreach (var item in order.Items)
+        {
+            var existingItem = cart.Items.FirstOrDefault(i => i.ProductId == item.ProductId);
+
+            if (existingItem != null)
+            {
+                existingItem.Quantity += item.Quantity;
+            }
+            else
+            {
+                cart.Items.Add(new CartItem
+                {
+                    ProductId = item.ProductId,
+                    Quantity = item.Quantity
+                });
+            }
+        }
     }
 
     private OrderDto ToDto(Order order,string? clientSecret = null) => new()
