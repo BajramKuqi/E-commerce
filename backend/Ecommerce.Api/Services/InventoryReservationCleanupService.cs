@@ -64,6 +64,7 @@ public class InventoryReservationCleanupService : BackgroundService
             {
                 reservation.Product.StockQuantity += reservation.Quantity;
                 reservation.Order.Status = OrderStatus.Cancelled;
+                released++;
             }
             else
             {
