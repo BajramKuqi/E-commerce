@@ -1,6 +1,6 @@
-import { Routes, Route, Link } from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom'
 import { useEffect } from 'react'
-import { ShoppingCart, Package } from 'lucide-react'
+import Navbar from './components/Navbar'
 import ProductsPage from './pages/ProductsPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
@@ -15,47 +15,16 @@ import { useAuth } from './context/AuthContext'
 import { useCart } from './context/CartContext'
 
 function App() {
-    const { user, logout } = useAuth()
+    const { user } = useAuth()
     const { refreshCart } = useCart()
+
     useEffect(() => {
         refreshCart()
     }, [user, refreshCart])
+
     return (
         <div>
-            <nav className="bg-gray-800 text-white p-4 flex gap-4 items-center">
-                <Link to="/">Products</Link>
-                {user && (
-                    <Link to="/cart" className="flex items-center">
-                        <ShoppingCart size={20} />
-                    </Link>
-                )}
-                {user && (
-                    <Link to="/orders" className="flex items-center">
-                        <Package size={20} />
-                    </Link>
-                )}
-                {user?.roles.includes('Admin') && (
-                    <Link to="/admin/products" className="flex items-center text-sm">
-                        Admin Products
-                    </Link>
-                )}
-                {user?.roles.includes('Admin') && (
-                    <Link to="/admin/orders" className="flex items-center text-sm">
-                        Admin Orders
-                    </Link>
-                )}
-                {user ? (
-                    <>
-                        <span className="ml-auto">Hi, {user.fullName}</span>
-                        <button onClick={logout} className="text-sm underline">Logout</button>
-                    </>
-                ) : (
-                    <>
-                        <Link to="/login" className="ml-auto">Login</Link>
-                        <Link to="/register">Register</Link>
-                    </>
-                )}
-            </nav>
+            <Navbar />
             <Routes>
                 <Route path="/" element={<ProductsPage />} />
                 <Route path="/login" element={<LoginPage />} />
