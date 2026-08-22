@@ -1,9 +1,20 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Trash2, Package, Minus, Plus } from 'lucide-react'
+import {
+    Trash2,
+    Package,
+    Minus,
+    Plus,
+    ArrowLeft,
+    Truck,
+    RotateCcw,
+    ShieldCheck,
+    Headphones,
+    Lock,
+} from 'lucide-react'
 import { api } from '../api/client'
 import { useCart } from '../context/CartContext'
-import type { CartDto } from '../types/Cart'
+import type { CartDto, CartItemDto } from '../types/Cart'
 
 function sanitizeDigits(value: string) {
     if (value === '') return ''
@@ -12,20 +23,18 @@ function sanitizeDigits(value: string) {
     return v
 }
 
-function clampToMax(value: string, max: number) {
-    if (value === '') return value
-    const num = parseInt(value, 10)
-    if (num > max) return String(max)
-    return value
-}
+const FREE_SHIPPING_THRESHOLD = 50
+const SUMMARY_ITEMS_PREVIEW_COUNT = 4
 
 function CartPage() {
     const [cart, setCart] = useState<CartDto | null>(null)
     const [initialLoading, setInitialLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
-    const [removeQuantities, setRemoveQuantities] = useState<Record<number, string>>({})
+    const [message, setMessage] = useState<string | null>(null)
+    const [quantityDrafts, setQuantityDrafts] = useState<Record<number, string>>({})
     const [selectedProductIds, setSelectedProductIds] = useState<Set<number>>(new Set())
     const [brokenImageIds, setBrokenImageIds] = useState<Set<number>>(new Set())
+    const [showAllSummaryItems, setShowAllSummaryItems] = useState(false)
     const initializedRef = useRef(false)
     const { refreshCart } = useCart()
     const navigate = useNavigate()
@@ -63,6 +72,11 @@ function CartPage() {
         })
     }, [cart])
 
+    function showMessage(text: string) {
+        setMessage(text)
+        setTimeout(() => setMessage(null), 2500)
+    }
+
     function toggleSelected(productId: number) {
         setSelectedProductIds((prev) => {
             const next = new Set(prev)
@@ -87,50 +101,79 @@ function CartPage() {
         setBrokenImageIds((prev) => new Set(prev).add(productId))
     }
 
-    function getRemoveQuantity(productId: number) {
-        return removeQuantities[productId] ?? '1'
+    function getQuantityDraft(item: CartItemDto) {
+        return quantityDrafts[item.productId] ?? String(item.quantity)
     }
 
-    function setRemoveValue(productId: number, value: string) {
-        setRemoveQuantities((prev) => ({ ...prev, [productId]: value }))
+    function setQuantityDraft(productId: number, value: string) {
+        setQuantityDrafts((prev) => ({ ...prev, [productId]: value }))
     }
 
-    function handleRemoveInput(productId: number, value: string, max: number) {
-        const sanitized = sanitizeDigits(value)
-        setRemoveValue(productId, clampToMax(sanitized, max))
+    function clamp(value: number, item: CartItemDto) {
+        if (value < 0) return 0
+        if (value > item.quantity) return item.quantity
+        return value
     }
 
-    function handleRemoveBlur(productId: number, max: number) {
-        const raw = removeQuantities[productId] ?? '1'
+    function handleQuantityInput(productId: number, value: string) {
+        setQuantityDraft(productId, sanitizeDigits(value))
+    }
+
+    function handleQuantityBlur(item: CartItemDto) {
+        const raw = quantityDrafts[item.productId]
+        if (raw === undefined) return
         let num = parseInt(raw, 10)
-        if (isNaN(num) || num < 1) num = 1
-        if (num > max) num = max
-        setRemoveValue(productId, String(num))
+        if (isNaN(num)) num = 0
+        num = clamp(num, item)
+        setQuantityDraft(item.productId, String(num))
     }
 
-    function step(productId: number, delta: number, max: number) {
-        const current = parseInt(getRemoveQuantity(productId), 10) || 1
-        let next = current + delta
-        if (next < 1) next = 1
-        if (next > max) next = max
-        setRemoveValue(productId, String(next))
+    function step(item: CartItemDto, delta: number) {
+        const raw = quantityDrafts[item.productId]
+        const current = raw !== undefined ? parseInt(raw, 10) : item.quantity
+        const base = isNaN(current) ? item.quantity : current
+        const next = clamp(base + delta, item)
+        setQuantityDraft(item.productId, String(next))
     }
 
-    async function handleRemove(productId: number, currentQuantity: number) {
-        const removeAmount = parseInt(getRemoveQuantity(productId), 10) || 1
-        const remaining = currentQuantity - removeAmount
+    async function handleDelete(item: CartItemDto) {
+        const raw = quantityDrafts[item.productId]
+        let removeAmount = raw !== undefined ? parseInt(raw, 10) : item.quantity
+        if (isNaN(removeAmount)) removeAmount = item.quantity
+        removeAmount = clamp(removeAmount, item)
+        if (removeAmount <= 0) return
 
+        const newQuantity = item.quantity - removeAmount
         try {
-            if (remaining <= 0) {
-                await api.delete(`/Cart/items/${productId}`)
+            if (newQuantity <= 0) {
+                await api.delete(`/Cart/items/${item.productId}`)
             } else {
-                await api.put(`/Cart/items/${productId}`, { quantity: remaining })
+                await api.put(`/Cart/items/${item.productId}`, { quantity: newQuantity })
             }
-            setRemoveValue(productId, '1')
+            setQuantityDrafts((prev) => {
+                const next = { ...prev }
+                delete next[item.productId]
+                return next
+            })
             fetchCart()
         } catch (err) {
             console.error(err)
+            showMessage('Could not update quantity')
+            fetchCart()
         }
+    }
+
+    function handleClearCart() {
+        if (!cart) return
+        Promise.all(cart.items.map((item) => api.delete(`/Cart/items/${item.productId}`)))
+            .then(() => {
+                setQuantityDrafts({})
+                fetchCart()
+            })
+            .catch((err) => {
+                console.error(err)
+                showMessage('Could not clear cart')
+            })
     }
 
     function handleCheckout() {
@@ -141,65 +184,145 @@ function CartPage() {
     if (error) return <p className="p-8 text-red-600">{error}</p>
     if (!cart || cart.items.length === 0) return <p className="p-8">Your cart is empty.</p>
 
-    const selectedTotal = cart.items
-        .filter((item) => selectedProductIds.has(item.productId))
-        .reduce((sum, item) => sum + item.lineTotal, 0)
-
+    const selectedItems = cart.items.filter((item) => selectedProductIds.has(item.productId))
+    const subtotal = selectedItems.reduce((sum, item) => sum + item.lineTotal, 0)
+    const shipping = subtotal === 0 || subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : 0
+    const total = subtotal + shipping
     const allSelected = selectedProductIds.size === cart.items.length
+    const visibleSummaryItems = showAllSummaryItems
+        ? selectedItems
+        : selectedItems.slice(0, SUMMARY_ITEMS_PREVIEW_COUNT)
+    const hiddenSummaryCount = selectedItems.length - visibleSummaryItems.length
 
-    return (
-        <div className="min-h-screen bg-gray-50 p-8">
-            <div className="flex items-center justify-between mb-2">
-                <h1 className="text-3xl font-bold text-gray-800">Your Cart</h1>
-                <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
-                    <input
-                        type="checkbox"
-                        checked={allSelected}
-                        onChange={toggleSelectAll}
-                        className="w-4 h-4"
-                    />
-                    Select all
-                </label>
+    const summaryContent = (
+        <>
+            <h2 className="font-bold text-gray-900 mb-4">Summary</h2>
+
+            <div className="flex flex-col gap-3 mb-2">
+                {visibleSummaryItems.map((item) => (
+                    <div key={item.productId} className="flex items-start justify-between gap-3 text-sm">
+                        <div className="min-w-0">
+                            <p className="text-gray-800 font-medium truncate">{item.productName}</p>
+                            <p className="text-gray-400 text-xs mt-0.5">
+                                {item.quantity} x ${item.unitPrice}
+                            </p>
+                        </div>
+                        <p className="text-gray-900 font-semibold shrink-0">${item.lineTotal.toFixed(2)}</p>
+                    </div>
+                ))}
             </div>
 
-            <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-4 mt-6">
-                {cart.items.map((item) => {
-                    const showImage = item.imageUrl && !brokenImageIds.has(item.productId)
-                    return (
-                        <div
-                            key={item.productId}
-                            className={`bg-white rounded-xl shadow-sm border overflow-hidden flex flex-col ${
-                                selectedProductIds.has(item.productId) ? 'border-indigo-300' : 'border-gray-100'
-                            }`}
-                        >
-                            <div className="h-32 bg-white p-1 flex items-center justify-center relative overflow-hidden">
+            {hiddenSummaryCount > 0 && (
+                <button
+                    type="button"
+                    onClick={() => setShowAllSummaryItems(true)}
+                    className="text-xs font-medium text-indigo-600 hover:text-indigo-700 text-left mb-4"
+                >
+                    Show {hiddenSummaryCount} more
+                </button>
+            )}
+            {showAllSummaryItems && selectedItems.length > SUMMARY_ITEMS_PREVIEW_COUNT && (
+                <button
+                    type="button"
+                    onClick={() => setShowAllSummaryItems(false)}
+                    className="text-xs font-medium text-indigo-600 hover:text-indigo-700 text-left mb-4"
+                >
+                    Show less
+                </button>
+            )}
+
+            <div className="flex flex-col gap-2 text-sm border-t border-gray-100 pt-4">
+                <div className="flex justify-between text-gray-600">
+                    <span>Subtotal ({selectedItems.length} items)</span>
+                    <span>${subtotal.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-gray-600">
+                    <span>Shipping</span>
+                    <span>${shipping.toFixed(2)}</span>
+                </div>
+                <p className="text-xs text-green-600">Free shipping on orders over $50</p>
+            </div>
+
+            <div className="flex justify-between items-center border-t border-gray-100 mt-4 pt-4">
+                <span className="font-bold text-gray-900">Total</span>
+                <span className="font-bold text-xl text-gray-900">${total.toFixed(2)}</span>
+            </div>
+
+            <div className="pt-4">
+                <button
+                    onClick={handleCheckout}
+                    disabled={selectedProductIds.size === 0}
+                    className="w-full bg-gray-900 hover:bg-gray-800 text-white font-medium py-2.5 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+                >
+                    <Lock size={14} />
+                    Checkout
+                </button>
+                <p className="flex items-center justify-center gap-1.5 text-xs text-gray-400 mt-3">
+                    <ShieldCheck size={13} className="text-green-500" />
+                    Secure checkout
+                </p>
+            </div>
+        </>
+    )
+
+    return (
+        <div className="min-h-screen bg-gray-50 flex flex-col">
+            <div className="flex-1 p-6 lg:p-8 lg:pr-[22rem] xl:pr-[26rem] flex flex-col">
+                <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-3">
+                        <h1 className="text-2xl font-bold text-gray-900">Your Cart</h1>
+                        <span className="bg-indigo-100 text-indigo-600 text-xs font-semibold px-2.5 py-1 rounded-full">
+                            {cart.items.length} {cart.items.length === 1 ? 'item' : 'items'}
+                        </span>
+                    </div>
+                    <button
+                        onClick={() => navigate('/')}
+                        className="flex items-center gap-1.5 text-sm font-medium text-indigo-600 hover:text-indigo-700"
+                    >
+                        <ArrowLeft size={16} />
+                        Continue Shopping
+                    </button>
+                </div>
+
+                {message && <p className="mb-4 text-sm text-red-600">{message}</p>}
+
+                <div className="flex flex-col gap-3">
+                    {cart.items.map((item) => {
+                        const showImage = item.imageUrl && !brokenImageIds.has(item.productId)
+                        return (
+                            <div
+                                key={item.productId}
+                                className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex items-center gap-4"
+                            >
                                 <input
                                     type="checkbox"
                                     checked={selectedProductIds.has(item.productId)}
                                     onChange={() => toggleSelected(item.productId)}
-                                    className="absolute top-2 left-2 w-4 h-4 z-10"
+                                    className="w-4 h-4 accent-indigo-600 shrink-0"
                                 />
-                                {showImage ? (
-                                    <img
-                                        src={item.imageUrl}
-                                        alt={item.productName}
-                                        className="w-full h-full object-contain rounded-lg"
-                                        onError={() => markImageBroken(item.productId)}
-                                    />
-                                ) : (
-                                    <Package className="text-gray-300" size={40} />
-                                )}
-                            </div>
 
-                            <div className="p-4 flex flex-col flex-1">
-                                <p className="font-semibold text-gray-800 line-clamp-1">{item.productName}</p>
-                                <p className="text-xs text-gray-400 mt-1">${item.unitPrice} each</p>
-                                <p className="text-xs text-gray-500 mt-1">In cart: {item.quantity}</p>
+                                <div className="w-16 h-16 shrink-0 bg-gray-50 rounded-lg flex items-center justify-center overflow-hidden">
+                                    {showImage ? (
+                                        <img
+                                            src={item.imageUrl}
+                                            alt={item.productName}
+                                            className="w-full h-full object-contain"
+                                            onError={() => markImageBroken(item.productId)}
+                                        />
+                                    ) : (
+                                        <Package className="text-gray-300" size={24} />
+                                    )}
+                                </div>
 
-                                <div className="mt-auto pt-3 flex items-center gap-2">
+                                <div className="flex-1 min-w-0">
+                                    <p className="font-semibold text-gray-800 truncate">{item.productName}</p>
+                                    <p className="text-sm text-gray-400 mt-0.5">${item.unitPrice} each</p>
+                                </div>
+
+                                <div className="flex items-center gap-2 shrink-0">
                                     <button
                                         type="button"
-                                        onClick={() => step(item.productId, -1, item.quantity)}
+                                        onClick={() => step(item, -1)}
                                         className="w-7 h-7 border rounded flex items-center justify-center hover:bg-gray-50"
                                     >
                                         <Minus size={14} />
@@ -207,47 +330,95 @@ function CartPage() {
                                     <input
                                         type="text"
                                         inputMode="numeric"
-                                        value={getRemoveQuantity(item.productId)}
-                                        onChange={(e) => handleRemoveInput(item.productId, e.target.value, item.quantity)}
-                                        onBlur={() => handleRemoveBlur(item.productId, item.quantity)}
+                                        value={getQuantityDraft(item)}
+                                        onChange={(e) => handleQuantityInput(item.productId, e.target.value)}
+                                        onBlur={() => handleQuantityBlur(item)}
                                         className="w-10 border rounded px-1 py-1 text-sm text-center"
                                     />
                                     <button
                                         type="button"
-                                        onClick={() => step(item.productId, 1, item.quantity)}
+                                        onClick={() => step(item, 1)}
                                         className="w-7 h-7 border rounded flex items-center justify-center hover:bg-gray-50"
                                     >
                                         <Plus size={14} />
                                     </button>
                                 </div>
 
-                                <button
-                                    onClick={() => handleRemove(item.productId, item.quantity)}
-                                    className="flex items-center justify-center gap-1 text-red-500 hover:text-red-700 text-xs mt-2 border border-red-200 rounded py-1"
-                                >
-                                    <Trash2 size={13} />
-                                    Remove
-                                </button>
+                                <p className="font-bold text-gray-900 w-16 text-right shrink-0">
+                                    ${item.lineTotal.toFixed(2)}
+                                </p>
 
-                                <p className="font-bold text-gray-900 text-right mt-2">${item.lineTotal.toFixed(2)}</p>
+                                <button
+                                    onClick={() => handleDelete(item)}
+                                    className="text-red-400 hover:text-red-600 shrink-0"
+                                >
+                                    <Trash2 size={18} />
+                                </button>
                             </div>
-                        </div>
-                    )
-                })}
+                        )
+                    })}
+                </div>
+
+                <div className="lg:hidden bg-white rounded-xl border border-gray-100 shadow-sm p-6 flex flex-col mt-6">
+                    {summaryContent}
+                </div>
             </div>
 
-            <div className="flex items-center justify-between mt-8">
-                <p className="text-xl font-bold">Selected total: ${selectedTotal.toFixed(2)}</p>
-                <button
-                    onClick={handleCheckout}
-                    disabled={selectedProductIds.size === 0}
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed"
-                >
-                    Checkout ({selectedProductIds.size})
-                </button>
+            <div className="hidden lg:flex flex-col fixed top-20 right-6 xl:right-8 w-80 xl:w-96 bg-white rounded-xl border border-gray-100 shadow-sm p-6 max-h-[calc(100vh-9rem)] overflow-y-auto">
+                {summaryContent}
+            </div>
+
+            <div className="sticky bottom-0 z-30 bg-white border-t border-gray-200">
+                <div className="px-6 lg:px-8 py-3 flex items-center justify-between border-b border-gray-100">
+                    <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+                        <input
+                            type="checkbox"
+                            checked={allSelected}
+                            onChange={toggleSelectAll}
+                            className="w-4 h-4 accent-indigo-600"
+                        />
+                        Select all ({cart.items.length})
+                    </label>
+                    <button
+                        onClick={handleClearCart}
+                        className="text-sm font-medium text-red-500 hover:text-red-700"
+                    >
+                        Clear Cart
+                    </button>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 px-6 lg:px-8 py-4">
+                    <div className="flex items-center gap-3">
+                        <Truck size={20} className="text-indigo-600 shrink-0" />
+                        <div>
+                            <p className="text-sm font-medium text-gray-800">Free Shipping</p>
+                            <p className="text-xs text-gray-400">On orders over $50</p>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <RotateCcw size={20} className="text-indigo-600 shrink-0" />
+                        <div>
+                            <p className="text-sm font-medium text-gray-800">Easy Returns</p>
+                            <p className="text-xs text-gray-400">30-day return policy</p>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <ShieldCheck size={20} className="text-indigo-600 shrink-0" />
+                        <div>
+                            <p className="text-sm font-medium text-gray-800">Secure Payment</p>
+                            <p className="text-xs text-gray-400">100% secure checkout</p>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <Headphones size={20} className="text-indigo-600 shrink-0" />
+                        <div>
+                            <p className="text-sm font-medium text-gray-800">24/7 Support</p>
+                            <p className="text-xs text-gray-400">We're here to help</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     )
 }
-
 export default CartPage
