@@ -260,15 +260,20 @@ function AdminProductsPage() {
 
     const totalPages = Math.max(1, Math.ceil(totalCount / pageSize))
 
-    if (error) return <p className="p-8 text-red-600">{error}</p>
+    if (error) return <p className="p-8 text-[#9C4325]">{error}</p>
 
     return (
-        <div className="min-h-screen bg-gray-50 p-8">
+        <div className="min-h-screen bg-white p-8">
             <div className="flex items-center justify-between mb-6">
-                <h1 className="text-3xl font-bold text-gray-800">Manage Products</h1>
+                <h1
+                    className="text-3xl text-[#2B1D14]"
+                    style={{ fontFamily: "'Fraunces', serif", fontWeight: 600 }}
+                >
+                    Manage Products
+                </h1>
                 <button
                     onClick={openCreateModal}
-                    className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                    className="flex items-center gap-2 bg-[#B5502E] hover:bg-[#9C4325] border border-[#8B3D1F] text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                 >
                     <Plus size={16} />
                     New Product
@@ -276,13 +281,13 @@ function AdminProductsPage() {
             </div>
 
             {loading ? (
-                <p className="text-gray-500 text-sm">Loading products...</p>
+                <p className="text-[#7A6A5A] text-sm">Loading products...</p>
             ) : products.length === 0 ? (
-                <p className="text-gray-500 text-sm">No products yet.</p>
+                <p className="text-[#7A6A5A] text-sm">No products yet.</p>
             ) : (
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="bg-white rounded-xl shadow-sm border border-[#B5502E]/30 overflow-hidden">
                     <table className="w-full text-sm">
-                        <thead className="bg-gray-50 text-gray-500 text-xs uppercase tracking-wide">
+                        <thead className="bg-[#F6EEE2] text-[#7A6A5A] text-xs uppercase tracking-wide">
                         <tr>
                             <th className="text-left px-4 py-3">Name</th>
                             <th className="text-left px-4 py-3">Category</th>
@@ -295,10 +300,10 @@ function AdminProductsPage() {
                         {products.map((product) => {
                             const showImage = product.imageUrl && !brokenImageIds.has(product.id)
                             return (
-                                <tr key={product.id} className="border-t border-gray-100">
+                                <tr key={product.id} className="border-t border-[#F0E6D6]">
                                     <td className="px-4 py-3">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded bg-gray-100 flex items-center justify-center overflow-hidden shrink-0">
+                                            <div className="w-10 h-10 rounded bg-white border border-[#F0E6D6] flex items-center justify-center overflow-hidden shrink-0">
                                                 {showImage ? (
                                                     <img
                                                         src={product.imageUrl}
@@ -307,31 +312,31 @@ function AdminProductsPage() {
                                                         onError={() => markImageBroken(product.id)}
                                                     />
                                                 ) : (
-                                                    <Package className="text-gray-300" size={18} />
+                                                    <Package className="text-[#D9CBB8]" size={18} />
                                                 )}
                                             </div>
                                             <div>
-                                                <p className="font-medium text-gray-800">{product.name}</p>
+                                                <p className="font-medium text-[#2B1D14]">{product.name}</p>
                                                 {product.description && (
-                                                    <p className="text-xs text-gray-400 line-clamp-1">{product.description}</p>
+                                                    <p className="text-xs text-[#B8A896] line-clamp-1">{product.description}</p>
                                                 )}
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="px-4 py-3 text-gray-600">{product.categoryName}</td>
-                                    <td className="px-4 py-3 text-right text-gray-800">${product.price}</td>
-                                    <td className="px-4 py-3 text-right text-gray-600">{product.stockQuantity}</td>
+                                    <td className="px-4 py-3 text-[#7A6A5A]">{product.categoryName}</td>
+                                    <td className="px-4 py-3 text-right text-[#2B1D14] font-medium">${product.price}</td>
+                                    <td className="px-4 py-3 text-right text-[#7A6A5A]">{product.stockQuantity}</td>
                                     <td className="px-4 py-3">
                                         <div className="flex items-center justify-end gap-2">
                                             <button
                                                 onClick={() => openEditModal(product)}
-                                                className="p-1.5 rounded hover:bg-gray-100 text-gray-500"
+                                                className="p-1.5 rounded border border-[#E4D5C1] hover:bg-[#F6EEE2] text-[#7A6A5A] transition-colors"
                                             >
                                                 <Pencil size={16} />
                                             </button>
                                             <button
                                                 onClick={() => handleDelete(product)}
-                                                className="p-1.5 rounded hover:bg-red-50 text-red-500"
+                                                className="p-1.5 rounded border border-[#9C4325]/30 hover:bg-[#9C4325]/10 text-[#9C4325] transition-colors"
                                             >
                                                 <Trash2 size={16} />
                                             </button>
@@ -350,17 +355,17 @@ function AdminProductsPage() {
                     <button
                         disabled={page <= 1}
                         onClick={() => setPage((p) => p - 1)}
-                        className="text-sm px-3 py-1.5 rounded border border-gray-200 disabled:opacity-40"
+                        className="text-sm px-3 py-1.5 rounded border border-[#B5502E]/30 bg-white text-[#7A6A5A] disabled:opacity-40"
                     >
                         Previous
                     </button>
-                    <span className="text-sm text-gray-500">
+                    <span className="text-sm text-[#7A6A5A] font-medium">
                         Page {page} of {totalPages}
                     </span>
                     <button
                         disabled={page >= totalPages}
                         onClick={() => setPage((p) => p + 1)}
-                        className="text-sm px-3 py-1.5 rounded border border-gray-200 disabled:opacity-40"
+                        className="text-sm px-3 py-1.5 rounded border border-[#B5502E]/30 bg-white text-[#7A6A5A] disabled:opacity-40"
                     >
                         Next
                     </button>
@@ -368,13 +373,16 @@ function AdminProductsPage() {
             )}
 
             {modalOpen && (
-                <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
-                    <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-6">
+                <div className="fixed inset-0 bg-[#2B1D14]/50 flex items-center justify-center p-4 z-50">
+                    <div className="bg-white rounded-xl shadow-lg border border-[#E4D5C1] w-full max-w-md p-6">
                         <div className="flex items-center justify-between mb-4">
-                            <h2 className="text-lg font-semibold text-gray-800">
+                            <h2
+                                className="text-lg text-[#2B1D14]"
+                                style={{ fontFamily: "'Fraunces', serif", fontWeight: 600 }}
+                            >
                                 {editingProduct ? 'Edit Product' : 'New Product'}
                             </h2>
-                            <button onClick={closeModal} className="text-gray-400 hover:text-gray-600">
+                            <button onClick={closeModal} className="text-[#B8A896] hover:text-[#7A6A5A]">
                                 <X size={20} />
                             </button>
                         </div>
@@ -389,14 +397,14 @@ function AdminProductsPage() {
                                             .map((image) => (
                                                 <div
                                                     key={image.id}
-                                                    className="relative w-14 h-14 rounded bg-gray-100 border border-gray-200 overflow-hidden"
+                                                    className="relative w-14 h-14 rounded bg-white border border-[#E4D5C1] overflow-hidden"
                                                 >
                                                     <img src={image.imageUrl} alt="" className="w-full h-full object-cover" />
                                                     <button
                                                         type="button"
                                                         onClick={() => handleDeleteImage(image.id)}
                                                         disabled={deletingImageId === image.id}
-                                                        className="absolute top-0 right-0 bg-black/60 text-white rounded-bl p-0.5 disabled:opacity-50"
+                                                        className="absolute top-0 right-0 bg-[#2B1D14]/70 text-white rounded-bl p-0.5 disabled:opacity-50"
                                                     >
                                                         <X size={10} />
                                                     </button>
@@ -405,7 +413,7 @@ function AdminProductsPage() {
                                     </div>
                                 )}
 
-                                <label className="flex items-center gap-2 text-xs font-medium text-indigo-600 hover:text-indigo-700 cursor-pointer w-fit">
+                                <label className="flex items-center gap-2 text-xs font-medium text-[#B5502E] hover:text-[#9C4325] cursor-pointer w-fit">
                                     <Upload size={14} />
                                     {imageUploading ? 'Uploading...' : 'Add Image'}
                                     <input
@@ -416,13 +424,13 @@ function AdminProductsPage() {
                                         className="hidden"
                                     />
                                 </label>
-                                {imageError && <p className="text-red-600 text-xs mt-1">{imageError}</p>}
+                                {imageError && <p className="text-[#9C4325] text-xs mt-1">{imageError}</p>}
                             </div>
                         )}
 
                         {!editingProduct && (
                             <div className="mb-4">
-                                <label className="flex items-center gap-2 text-xs font-medium text-indigo-600 hover:text-indigo-700 cursor-pointer w-fit">
+                                <label className="flex items-center gap-2 text-xs font-medium text-[#B5502E] hover:text-[#9C4325] cursor-pointer w-fit">
                                     <Upload size={14} />
                                     Add Images
                                     <input
@@ -434,12 +442,12 @@ function AdminProductsPage() {
                                     />
                                 </label>
 
-                                <p className="text-xs text-gray-400 mt-1">Pending files: {pendingFiles.length}</p>
+                                <p className="text-xs text-[#B8A896] mt-1">Pending files: {pendingFiles.length}</p>
 
                                 {pendingFiles.length > 0 && (
                                     <div className="flex flex-wrap gap-2 mt-2">
                                         {pendingFiles.map((file, index) => (
-                                            <div key={index} className="relative w-14 h-14 rounded bg-gray-100 border border-gray-200 overflow-hidden">
+                                            <div key={index} className="relative w-14 h-14 rounded bg-white border border-[#E4D5C1] overflow-hidden">
                                                 <img
                                                     src={pendingPreviews[index]}
                                                     alt={file.name}
@@ -448,7 +456,7 @@ function AdminProductsPage() {
                                                 <button
                                                     type="button"
                                                     onClick={() => removePendingFile(index)}
-                                                    className="absolute top-0 right-0 bg-black/60 text-white rounded-bl p-0.5"
+                                                    className="absolute top-0 right-0 bg-[#2B1D14]/70 text-white rounded-bl p-0.5"
                                                 >
                                                     <X size={10} />
                                                 </button>
@@ -461,54 +469,54 @@ function AdminProductsPage() {
 
                         <form onSubmit={handleSubmit} className="space-y-3">
                             <div>
-                                <label className="block text-xs font-medium text-gray-600 mb-1">Name</label>
+                                <label className="block text-xs font-medium text-[#7A6A5A] mb-1 uppercase tracking-wide">Name</label>
                                 <input
                                     type="text"
                                     value={form.name}
                                     onChange={(e) => updateField('name', e.target.value)}
-                                    className="w-full border rounded px-3 py-2 text-sm"
+                                    className="w-full border border-[#E4D5C1] rounded-lg px-3 py-2 text-sm text-[#2B1D14] bg-white focus:outline-none focus:ring-2 focus:ring-[#B5502E] focus:border-transparent"
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-xs font-medium text-gray-600 mb-1">Description</label>
+                                <label className="block text-xs font-medium text-[#7A6A5A] mb-1 uppercase tracking-wide">Description</label>
                                 <textarea
                                     value={form.description}
                                     onChange={(e) => updateField('description', e.target.value)}
                                     rows={2}
-                                    className="w-full border rounded px-3 py-2 text-sm"
+                                    className="w-full border border-[#E4D5C1] rounded-lg px-3 py-2 text-sm text-[#2B1D14] bg-white focus:outline-none focus:ring-2 focus:ring-[#B5502E] focus:border-transparent"
                                 />
                             </div>
 
                             <div className="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label className="block text-xs font-medium text-gray-600 mb-1">Price</label>
+                                    <label className="block text-xs font-medium text-[#7A6A5A] mb-1 uppercase tracking-wide">Price</label>
                                     <input
                                         type="text"
                                         inputMode="decimal"
                                         value={form.price}
                                         onChange={(e) => updateField('price', e.target.value)}
-                                        className="w-full border rounded px-3 py-2 text-sm"
+                                        className="w-full border border-[#E4D5C1] rounded-lg px-3 py-2 text-sm text-[#2B1D14] bg-white focus:outline-none focus:ring-2 focus:ring-[#B5502E] focus:border-transparent"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-medium text-gray-600 mb-1">Stock</label>
+                                    <label className="block text-xs font-medium text-[#7A6A5A] mb-1 uppercase tracking-wide">Stock</label>
                                     <input
                                         type="text"
                                         inputMode="numeric"
                                         value={form.stockQuantity}
                                         onChange={(e) => updateField('stockQuantity', e.target.value)}
-                                        className="w-full border rounded px-3 py-2 text-sm"
+                                        className="w-full border border-[#E4D5C1] rounded-lg px-3 py-2 text-sm text-[#2B1D14] bg-white focus:outline-none focus:ring-2 focus:ring-[#B5502E] focus:border-transparent"
                                     />
                                 </div>
                             </div>
 
                             <div>
-                                <label className="block text-xs font-medium text-gray-600 mb-1">Category</label>
+                                <label className="block text-xs font-medium text-[#7A6A5A] mb-1 uppercase tracking-wide">Category</label>
                                 <select
                                     value={form.categoryId}
                                     onChange={(e) => updateField('categoryId', e.target.value)}
-                                    className="w-full border rounded px-3 py-2 text-sm bg-white"
+                                    className="w-full border border-[#E4D5C1] rounded-lg px-3 py-2 text-sm bg-white text-[#2B1D14] focus:outline-none focus:ring-2 focus:ring-[#B5502E] focus:border-transparent"
                                 >
                                     <option value="">Select a category</option>
                                     {categories.map((category) => (
@@ -519,20 +527,20 @@ function AdminProductsPage() {
                                 </select>
                             </div>
 
-                            {formError && <p className="text-red-600 text-xs">{formError}</p>}
+                            {formError && <p className="text-[#9C4325] text-xs">{formError}</p>}
 
                             <div className="flex justify-end gap-2 pt-2">
                                 <button
                                     type="button"
                                     onClick={closeModal}
-                                    className="px-4 py-2 text-sm rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50"
+                                    className="px-4 py-2 text-sm rounded-lg border border-[#E4D5C1] text-[#7A6A5A] hover:bg-[#F6EEE2] transition-colors"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={submitting}
-                                    className="px-4 py-2 text-sm rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white disabled:opacity-50"
+                                    className="px-4 py-2 text-sm rounded-lg bg-[#B5502E] hover:bg-[#9C4325] border border-[#8B3D1F] text-white disabled:opacity-50 transition-colors"
                                 >
                                     {submitting ? 'Saving...' : editingProduct ? 'Save Changes' : 'Create Product'}
                                 </button>

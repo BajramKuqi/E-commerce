@@ -31,6 +31,18 @@ function clampToMax(value: string, max: number) {
     return value
 }
 
+function stockLabelClass(stock: number) {
+    if (stock === 0) return 'text-[#9C4325] font-semibold'
+    if (stock <= 5) return 'text-[#B5502E] font-semibold'
+    return 'text-[#5B7A4A] font-semibold'
+}
+
+function stockLabelText(stock: number) {
+    if (stock === 0) return 'Out of stock'
+    if (stock <= 5) return `Only ${stock} left`
+    return `${stock} in stock`
+}
+
 const PRICE_CEILING = 500
 
 type SortOption = 'newest' | 'price-asc' | 'price-desc' | 'name-asc'
@@ -199,10 +211,10 @@ function ProductsPage() {
 
     const totalPages = Math.max(1, Math.ceil(totalCount / pageSize))
 
-    if (error) return <p className="p-8 text-red-600">{error}</p>
+    if (error) return <p className="p-8 text-[#9C4325]">{error}</p>
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-white">
             <style>{`
                 .dual-range { position: relative; height: 20px; }
                 .dual-range input[type='range'] {
@@ -221,9 +233,9 @@ function ProductsPage() {
                     width: 16px;
                     height: 16px;
                     border-radius: 9999px;
-                    background: #4f46e5;
+                    background: #B5502E;
                     border: 2px solid white;
-                    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+                    box-shadow: 0 1px 3px rgba(43,29,20,0.3);
                     cursor: pointer;
                     margin-top: -6px;
                 }
@@ -232,9 +244,9 @@ function ProductsPage() {
                     width: 16px;
                     height: 16px;
                     border-radius: 9999px;
-                    background: #4f46e5;
+                    background: #B5502E;
                     border: 2px solid white;
-                    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+                    box-shadow: 0 1px 3px rgba(43,29,20,0.3);
                     cursor: pointer;
                 }
                 .dual-range input[type='range']::-webkit-slider-runnable-track {
@@ -245,29 +257,29 @@ function ProductsPage() {
             `}</style>
 
             <div className="flex">
-                <aside className="hidden lg:flex flex-col w-72 shrink-0 border-r border-gray-200 bg-white p-6 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto">
+                <aside className="hidden lg:flex flex-col w-72 shrink-0 border-r border-[#E4D5C1] bg-white p-6 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto">
                     <div className="relative mb-6">
-                        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#B8A896]" />
                         <input
                             type="text"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             placeholder="Search products..."
-                            className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            className="w-full pl-9 pr-3 py-2 text-sm border border-[#E4D5C1] rounded-lg bg-white text-[#2B1D14] placeholder-[#B8A896] focus:outline-none focus:ring-2 focus:ring-[#B5502E]"
                         />
                     </div>
 
                     <div className="mb-8">
-                        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
+                        <h3 className="text-xs font-semibold text-[#B8A896] uppercase tracking-wide mb-3">
                             Categories
                         </h3>
                         <div className="flex flex-col gap-1">
                             <button
                                 onClick={() => selectCategory(null)}
-                                className={`text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                className={`text-left px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
                                     selectedCategoryId === null
-                                        ? 'bg-indigo-50 text-indigo-600'
-                                        : 'text-gray-600 hover:bg-gray-50'
+                                        ? 'bg-[#B5502E]/10 text-[#B5502E] border-[#B5502E]/40'
+                                        : 'text-[#7A6A5A] border-transparent hover:bg-[#F6EEE2]'
                                 }`}
                             >
                                 All Categories
@@ -276,10 +288,10 @@ function ProductsPage() {
                                 <button
                                     key={category.id}
                                     onClick={() => selectCategory(category.id)}
-                                    className={`text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                    className={`text-left px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
                                         selectedCategoryId === category.id
-                                            ? 'bg-indigo-50 text-indigo-600'
-                                            : 'text-gray-600 hover:bg-gray-50'
+                                            ? 'bg-[#B5502E]/10 text-[#B5502E] border-[#B5502E]/40'
+                                            : 'text-[#7A6A5A] border-transparent hover:bg-[#F6EEE2]'
                                     }`}
                                 >
                                     {category.name}
@@ -289,7 +301,7 @@ function ProductsPage() {
                     </div>
 
                     <div className="mb-8">
-                        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
+                        <h3 className="text-xs font-semibold text-[#B8A896] uppercase tracking-wide mb-3">
                             Price Range
                         </h3>
                         <div className="flex items-center gap-2 mb-4">
@@ -299,16 +311,16 @@ function ProductsPage() {
                                 placeholder="Min"
                                 value={minPrice}
                                 onChange={(e) => setMinPrice(sanitizeDigits(e.target.value))}
-                                className="w-1/2 px-2 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                className="w-1/2 px-2 py-1.5 text-sm border border-[#E4D5C1] rounded-lg bg-white text-[#2B1D14] focus:outline-none focus:ring-2 focus:ring-[#B5502E]"
                             />
-                            <span className="text-gray-300">-</span>
+                            <span className="text-[#D9CBB8]">-</span>
                             <input
                                 type="text"
                                 inputMode="numeric"
                                 placeholder="Max"
                                 value={maxPrice}
                                 onChange={(e) => setMaxPrice(sanitizeDigits(e.target.value))}
-                                className="w-1/2 px-2 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                className="w-1/2 px-2 py-1.5 text-sm border border-[#E4D5C1] rounded-lg bg-white text-[#2B1D14] focus:outline-none focus:ring-2 focus:ring-[#B5502E]"
                             />
                         </div>
                         <div className="dual-range">
@@ -333,7 +345,7 @@ function ProductsPage() {
                                 }}
                             />
                         </div>
-                        <div className="flex justify-between text-xs text-gray-400 mt-2">
+                        <div className="flex justify-between text-xs text-[#B8A896] mt-2">
                             <span>$0</span>
                             <span>${PRICE_CEILING}+</span>
                         </div>
@@ -341,26 +353,31 @@ function ProductsPage() {
 
                     <button
                         onClick={clearFilters}
-                        className="mt-auto text-sm font-medium text-gray-600 border border-gray-200 rounded-lg py-2 hover:bg-gray-50 transition-colors"
+                        className="mt-auto text-sm font-medium text-[#7A6A5A] border border-[#E4D5C1] rounded-lg py-2 hover:bg-[#F6EEE2] transition-colors"
                     >
                         Clear Filters
                     </button>
                 </aside>
 
-                <main className="flex-1 p-6 lg:p-8">
+                <main className="flex-1 p-6 lg:p-8 bg-white">
                     <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
                         <div>
-                            <h1 className="text-2xl font-bold text-gray-900">Products</h1>
-                            <p className="text-sm text-gray-500 mt-1">Browse our full collection.</p>
+                            <h1
+                                className="text-2xl text-[#2B1D14]"
+                                style={{ fontFamily: "'Fraunces', serif", fontWeight: 600 }}
+                            >
+                                Products
+                            </h1>
+                            <p className="text-sm text-[#7A6A5A] mt-1">Browse our full collection.</p>
                         </div>
 
                         <div className="flex items-center gap-3">
                             <div className="flex items-center gap-2">
-                                <SlidersHorizontal size={14} className="text-gray-400" />
+                                <SlidersHorizontal size={14} className="text-[#7A6A5A]" />
                                 <select
                                     value={sortOption}
                                     onChange={(e) => setSortOption(e.target.value as SortOption)}
-                                    className="text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                    className="text-sm border border-[#B5502E]/30 rounded-lg px-3 py-2 bg-white text-[#2B1D14] focus:outline-none focus:ring-2 focus:ring-[#B5502E]"
                                 >
                                     <option value="newest">Sort by: Newest</option>
                                     <option value="price-asc">Price: Low to High</option>
@@ -369,16 +386,16 @@ function ProductsPage() {
                                 </select>
                             </div>
 
-                            <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden">
+                            <div className="flex items-center border border-[#B5502E]/30 rounded-lg overflow-hidden">
                                 <button
                                     onClick={() => setViewMode('grid')}
-                                    className={`p-2 ${viewMode === 'grid' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-500 hover:bg-gray-50'}`}
+                                    className={`p-2 ${viewMode === 'grid' ? 'bg-[#B5502E] text-white' : 'bg-white text-[#7A6A5A] hover:bg-[#F6EEE2]'}`}
                                 >
                                     <LayoutGrid size={16} />
                                 </button>
                                 <button
                                     onClick={() => setViewMode('list')}
-                                    className={`p-2 ${viewMode === 'list' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-500 hover:bg-gray-50'}`}
+                                    className={`p-2 ${viewMode === 'list' ? 'bg-[#B5502E] text-white' : 'bg-white text-[#7A6A5A] hover:bg-[#F6EEE2]'}`}
                                 >
                                     <List size={16} />
                                 </button>
@@ -389,21 +406,21 @@ function ProductsPage() {
                     <div className="lg:hidden mb-4 flex flex-col gap-3">
                         <div className="flex items-center gap-2">
                             <div className="relative flex-1">
-                                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#B8A896]" />
                                 <input
                                     type="text"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                     placeholder="Search products..."
-                                    className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                    className="w-full pl-9 pr-3 py-2 text-sm border border-[#E4D5C1] rounded-lg bg-white text-[#2B1D14] placeholder-[#B8A896] focus:outline-none focus:ring-2 focus:ring-[#B5502E]"
                                 />
                             </div>
                             <button
                                 onClick={() => setMobileFiltersOpen((v) => !v)}
                                 className={`shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium border ${
                                     mobileFiltersOpen
-                                        ? 'bg-indigo-600 text-white border-indigo-600'
-                                        : 'bg-white text-gray-600 border-gray-200'
+                                        ? 'bg-[#B5502E] text-white border-[#B5502E]'
+                                        : 'bg-white text-[#7A6A5A] border-[#E4D5C1]'
                                 }`}
                             >
                                 <SlidersHorizontal size={14} />
@@ -414,10 +431,10 @@ function ProductsPage() {
                         <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
                             <button
                                 onClick={() => selectCategory(null)}
-                                className={`shrink-0 px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                                className={`shrink-0 px-4 py-1.5 rounded-full text-sm font-medium border transition-colors ${
                                     selectedCategoryId === null
-                                        ? 'bg-indigo-600 text-white'
-                                        : 'bg-white border border-gray-200 text-gray-600'
+                                        ? 'bg-[#B5502E] text-white border-[#B5502E]'
+                                        : 'bg-white border-[#E4D5C1] text-[#7A6A5A]'
                                 }`}
                             >
                                 All
@@ -426,10 +443,10 @@ function ProductsPage() {
                                 <button
                                     key={category.id}
                                     onClick={() => selectCategory(category.id)}
-                                    className={`shrink-0 px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                                    className={`shrink-0 px-4 py-1.5 rounded-full text-sm font-medium border transition-colors ${
                                         selectedCategoryId === category.id
-                                            ? 'bg-indigo-600 text-white'
-                                            : 'bg-white border border-gray-200 text-gray-600'
+                                            ? 'bg-[#B5502E] text-white border-[#B5502E]'
+                                            : 'bg-white border-[#E4D5C1] text-[#7A6A5A]'
                                     }`}
                                 >
                                     {category.name}
@@ -438,8 +455,8 @@ function ProductsPage() {
                         </div>
 
                         {mobileFiltersOpen && (
-                            <div className="bg-white border border-gray-200 rounded-lg p-4">
-                                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
+                            <div className="bg-white border border-[#E4D5C1] rounded-lg p-4">
+                                <h3 className="text-xs font-semibold text-[#B8A896] uppercase tracking-wide mb-3">
                                     Price Range
                                 </h3>
                                 <div className="flex items-center gap-2 mb-4">
@@ -449,16 +466,16 @@ function ProductsPage() {
                                         placeholder="Min"
                                         value={minPrice}
                                         onChange={(e) => setMinPrice(sanitizeDigits(e.target.value))}
-                                        className="w-1/2 px-2 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                        className="w-1/2 px-2 py-1.5 text-sm border border-[#E4D5C1] rounded-lg bg-white text-[#2B1D14] focus:outline-none focus:ring-2 focus:ring-[#B5502E]"
                                     />
-                                    <span className="text-gray-300">-</span>
+                                    <span className="text-[#D9CBB8]">-</span>
                                     <input
                                         type="text"
                                         inputMode="numeric"
                                         placeholder="Max"
                                         value={maxPrice}
                                         onChange={(e) => setMaxPrice(sanitizeDigits(e.target.value))}
-                                        className="w-1/2 px-2 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                        className="w-1/2 px-2 py-1.5 text-sm border border-[#E4D5C1] rounded-lg bg-white text-[#2B1D14] focus:outline-none focus:ring-2 focus:ring-[#B5502E]"
                                     />
                                 </div>
                                 <div className="dual-range">
@@ -483,13 +500,13 @@ function ProductsPage() {
                                         }}
                                     />
                                 </div>
-                                <div className="flex justify-between text-xs text-gray-400 mt-2 mb-4">
+                                <div className="flex justify-between text-xs text-[#B8A896] mt-2 mb-4">
                                     <span>$0</span>
                                     <span>${PRICE_CEILING}+</span>
                                 </div>
                                 <button
                                     onClick={clearFilters}
-                                    className="w-full text-sm font-medium text-gray-600 border border-gray-200 rounded-lg py-2 hover:bg-gray-50 transition-colors"
+                                    className="w-full text-sm font-medium text-[#7A6A5A] border border-[#E4D5C1] rounded-lg py-2 hover:bg-[#F6EEE2] transition-colors"
                                 >
                                     Clear Filters
                                 </button>
@@ -497,12 +514,12 @@ function ProductsPage() {
                         )}
                     </div>
 
-                    {message && <p className="mb-4 text-green-700 text-sm">{message}</p>}
+                    {message && <p className="mb-4 text-[#3E5A2F] font-medium text-sm">{message}</p>}
 
                     {loading ? (
-                        <p className="text-gray-500 text-sm">Loading products...</p>
+                        <p className="text-[#7A6A5A] text-sm">Loading products...</p>
                     ) : visibleProducts.length === 0 ? (
-                        <p className="text-gray-500 text-sm">No products match your filters.</p>
+                        <p className="text-[#7A6A5A] text-sm">No products match your filters.</p>
                     ) : viewMode === 'grid' ? (
                         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                             {visibleProducts.map((product) => {
@@ -511,10 +528,10 @@ function ProductsPage() {
                                 return (
                                     <div
                                         key={product.id}
-                                        className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col hover:shadow-md transition-shadow"
+                                        className="bg-white rounded-xl shadow-sm border border-[#B5502E]/30 overflow-hidden flex flex-col hover:shadow-lg hover:border-[#B5502E] hover:-translate-y-0.5 transition-all"
                                     >
                                         <div
-                                            className="h-36 bg-gray-50 p-1 flex items-center justify-center overflow-hidden cursor-pointer"
+                                            className="h-36 bg-white border-b border-[#F0E6D6] p-1 flex items-center justify-center overflow-hidden cursor-pointer"
                                             onClick={() => setSelectedProduct(product)}
                                         >
                                             {showImage ? (
@@ -525,14 +542,14 @@ function ProductsPage() {
                                                     onError={() => markImageBroken(product.id)}
                                                 />
                                             ) : (
-                                                <Package className="text-gray-300" size={40} />
+                                                <Package className="text-[#D9CBB8]" size={40} />
                                             )}
                                         </div>
 
                                         <div className="p-4 flex flex-col flex-1">
-                                            <p className="font-semibold text-gray-800 line-clamp-1">{product.name}</p>
-                                            <p className="text-lg font-bold text-gray-900 mt-1">${product.price}</p>
-                                            <p className="text-xs text-gray-400 mt-1">{stock} in stock</p>
+                                            <p className="font-semibold text-[#2B1D14] line-clamp-1">{product.name}</p>
+                                            <p className="text-lg font-bold text-[#2B1D14] mt-1">${product.price}</p>
+                                            <p className={`text-xs mt-1 ${stockLabelClass(stock)}`}>{stockLabelText(stock)}</p>
 
                                             {user && (
                                                 <div className="flex items-center gap-2 mt-3">
@@ -540,7 +557,7 @@ function ProductsPage() {
                                                         type="button"
                                                         onClick={() => step(product.id, -1, stock)}
                                                         disabled={stock === 0}
-                                                        className="w-7 h-7 border rounded flex items-center justify-center hover:bg-gray-50 disabled:opacity-40"
+                                                        className="w-7 h-7 bg-[#B5502E] hover:bg-[#9C4325] border border-[#8B3D1F] text-white rounded flex items-center justify-center disabled:opacity-40 transition-colors"
                                                     >
                                                         <Minus size={12} />
                                                     </button>
@@ -551,13 +568,13 @@ function ProductsPage() {
                                                         value={getQuantity(product.id)}
                                                         onChange={(e) => handleQuantityInput(product.id, e.target.value, stock)}
                                                         onBlur={() => handleQuantityBlur(product.id, stock)}
-                                                        className="w-full border rounded px-2 py-1 text-sm text-center disabled:bg-gray-50"
+                                                        className="w-full border border-[#E4D5C1] rounded px-2 py-1 text-sm text-center text-[#2B1D14] bg-white disabled:bg-[#F6EEE2]"
                                                     />
                                                     <button
                                                         type="button"
                                                         onClick={() => step(product.id, 1, stock)}
                                                         disabled={stock === 0}
-                                                        className="w-7 h-7 border rounded flex items-center justify-center hover:bg-gray-50 disabled:opacity-40"
+                                                        className="w-7 h-7 bg-[#B5502E] hover:bg-[#9C4325] border border-[#8B3D1F] text-white rounded flex items-center justify-center disabled:opacity-40 transition-colors"
                                                     >
                                                         <Plus size={12} />
                                                     </button>
@@ -567,7 +584,7 @@ function ProductsPage() {
                                             <button
                                                 onClick={() => handleAddToCart(product.id)}
                                                 disabled={!user || stock === 0}
-                                                className="mt-3 w-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium py-2 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+                                                className="mt-3 w-full bg-[#B5502E] hover:bg-[#9C4325] border border-[#8B3D1F] text-white text-sm font-medium py-2 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
                                             >
                                                 <ShoppingCart size={14} />
                                                 Add to cart
@@ -585,10 +602,10 @@ function ProductsPage() {
                                 return (
                                     <div
                                         key={product.id}
-                                        className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex items-center gap-4 hover:shadow-md transition-shadow"
+                                        className="bg-white rounded-xl shadow-sm border border-[#B5502E]/30 p-4 flex items-center gap-4 hover:shadow-lg hover:border-[#B5502E] transition-all"
                                     >
                                         <div
-                                            className="w-20 h-20 shrink-0 bg-gray-50 rounded-lg flex items-center justify-center overflow-hidden cursor-pointer"
+                                            className="w-20 h-20 shrink-0 bg-white border border-[#F0E6D6] rounded-lg flex items-center justify-center overflow-hidden cursor-pointer"
                                             onClick={() => setSelectedProduct(product)}
                                         >
                                             {showImage ? (
@@ -599,19 +616,19 @@ function ProductsPage() {
                                                     onError={() => markImageBroken(product.id)}
                                                 />
                                             ) : (
-                                                <Package className="text-gray-300" size={28} />
+                                                <Package className="text-[#D9CBB8]" size={28} />
                                             )}
                                         </div>
 
                                         <div className="flex-1 min-w-0">
-                                            <p className="font-semibold text-gray-800 truncate">{product.name}</p>
-                                            <span className="text-[11px] uppercase tracking-wide text-indigo-600 font-semibold">
+                                            <p className="font-semibold text-[#2B1D14] truncate">{product.name}</p>
+                                            <span className="text-[11px] uppercase tracking-wide text-[#B5502E] font-semibold">
                                                 {product.categoryName}
                                             </span>
-                                            <p className="text-xs text-gray-400 mt-1">{stock} in stock</p>
+                                            <p className={`text-xs mt-1 ${stockLabelClass(stock)}`}>{stockLabelText(stock)}</p>
                                         </div>
 
-                                        <p className="text-lg font-bold text-gray-900 shrink-0">${product.price}</p>
+                                        <p className="text-lg font-bold text-[#2B1D14] shrink-0">${product.price}</p>
 
                                         {user && (
                                             <div className="flex items-center gap-2 shrink-0">
@@ -619,7 +636,7 @@ function ProductsPage() {
                                                     type="button"
                                                     onClick={() => step(product.id, -1, stock)}
                                                     disabled={stock === 0}
-                                                    className="w-7 h-7 border rounded flex items-center justify-center hover:bg-gray-50 disabled:opacity-40"
+                                                    className="w-7 h-7 bg-[#B5502E] hover:bg-[#9C4325] border border-[#8B3D1F] text-white rounded flex items-center justify-center disabled:opacity-40 transition-colors"
                                                 >
                                                     <Minus size={12} />
                                                 </button>
@@ -630,13 +647,13 @@ function ProductsPage() {
                                                     value={getQuantity(product.id)}
                                                     onChange={(e) => handleQuantityInput(product.id, e.target.value, stock)}
                                                     onBlur={() => handleQuantityBlur(product.id, stock)}
-                                                    className="w-14 border rounded px-2 py-1 text-sm text-center disabled:bg-gray-50"
+                                                    className="w-14 border border-[#E4D5C1] rounded px-2 py-1 text-sm text-center text-[#2B1D14] bg-white disabled:bg-[#F6EEE2]"
                                                 />
                                                 <button
                                                     type="button"
                                                     onClick={() => step(product.id, 1, stock)}
                                                     disabled={stock === 0}
-                                                    className="w-7 h-7 border rounded flex items-center justify-center hover:bg-gray-50 disabled:opacity-40"
+                                                    className="w-7 h-7 bg-[#B5502E] hover:bg-[#9C4325] border border-[#8B3D1F] text-white rounded flex items-center justify-center disabled:opacity-40 transition-colors"
                                                 >
                                                     <Plus size={12} />
                                                 </button>
@@ -647,7 +664,7 @@ function ProductsPage() {
                                             <button
                                                 onClick={() => handleAddToCart(product.id)}
                                                 disabled={stock === 0}
-                                                className="bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-colors shrink-0"
+                                                className="bg-[#B5502E] hover:bg-[#9C4325] border border-[#8B3D1F] text-white p-2 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-colors shrink-0"
                                             >
                                                 <ShoppingCart size={18} />
                                             </button>
@@ -663,17 +680,17 @@ function ProductsPage() {
                             <button
                                 disabled={page <= 1}
                                 onClick={() => setPage((p) => p - 1)}
-                                className="text-sm px-3 py-1.5 rounded border border-gray-200 disabled:opacity-40"
+                                className="text-sm px-3 py-1.5 rounded border border-[#B5502E]/30 bg-white text-[#7A6A5A] disabled:opacity-40"
                             >
                                 Previous
                             </button>
-                            <span className="text-sm text-gray-500">
+                            <span className="text-sm text-[#7A6A5A] font-medium">
                                 Page {page} of {totalPages}
                             </span>
                             <button
                                 disabled={page >= totalPages}
                                 onClick={() => setPage((p) => p + 1)}
-                                className="text-sm px-3 py-1.5 rounded border border-gray-200 disabled:opacity-40"
+                                className="text-sm px-3 py-1.5 rounded border border-[#B5502E]/30 bg-white text-[#7A6A5A] disabled:opacity-40"
                             >
                                 Next
                             </button>
