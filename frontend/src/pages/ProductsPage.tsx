@@ -9,6 +9,9 @@ import {
     LayoutGrid,
     List,
     SlidersHorizontal,
+    ChevronDown,
+    ChevronLeft,
+    ChevronRight,
 } from 'lucide-react'
 import { api } from '../api/client'
 import { useAuth } from '../context/AuthContext'
@@ -32,9 +35,10 @@ function clampToMax(value: string, max: number) {
 }
 
 function stockLabelClass(stock: number) {
-    if (stock === 0) return 'text-[#9C4325] font-semibold'
-    if (stock <= 5) return 'text-[#B5502E] font-semibold'
-    return 'text-[#5B7A4A] font-semibold'
+    if (stock === 0) return 'text-red-600 font-semibold'
+    if (stock <= 5) return 'text-orange-600 font-semibold'
+    if (stock <= 20) return 'text-blue-600 font-semibold'
+    return 'text-green-600 font-semibold'
 }
 
 function stockLabelText(stock: number) {
@@ -56,6 +60,7 @@ function ProductsPage() {
     const [quantities, setQuantities] = useState<Record<number, string>>({})
     const [categories, setCategories] = useState<Category[]>([])
     const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null)
+    const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false)
     const [page, setPage] = useState(1)
     const pageSize = 12
     const [totalCount, setTotalCount] = useState(0)
@@ -211,6 +216,11 @@ function ProductsPage() {
 
     const totalPages = Math.max(1, Math.ceil(totalCount / pageSize))
 
+    const selectedCategoryName =
+        selectedCategoryId === null
+            ? 'All Categories'
+            : categories.find((c) => c.id === selectedCategoryId)?.name ?? 'All Categories'
+
     if (error) return <p className="p-8 text-[#9C4325]">{error}</p>
 
     return (
@@ -233,7 +243,7 @@ function ProductsPage() {
                     width: 16px;
                     height: 16px;
                     border-radius: 9999px;
-                    background: #B5502E;
+                    background: #F97316;
                     border: 2px solid white;
                     box-shadow: 0 1px 3px rgba(43,29,20,0.3);
                     cursor: pointer;
@@ -244,7 +254,7 @@ function ProductsPage() {
                     width: 16px;
                     height: 16px;
                     border-radius: 9999px;
-                    background: #B5502E;
+                    background: #F97316;
                     border: 2px solid white;
                     box-shadow: 0 1px 3px rgba(43,29,20,0.3);
                     cursor: pointer;
@@ -265,7 +275,7 @@ function ProductsPage() {
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             placeholder="Search products..."
-                            className="w-full pl-9 pr-3 py-2 text-sm border border-[#E4D5C1] rounded-lg bg-white text-[#2B1D14] placeholder-[#B8A896] focus:outline-none focus:ring-2 focus:ring-[#B5502E]"
+                            className="w-full pl-9 pr-3 py-2 text-sm border border-[#E4D5C1]/70 rounded-md bg-white text-[#2B1D14] placeholder-[#B8A896] focus:outline-none focus:ring-2 focus:ring-[#F97316]"
                         />
                     </div>
 
@@ -273,31 +283,49 @@ function ProductsPage() {
                         <h3 className="text-xs font-semibold text-[#B8A896] uppercase tracking-wide mb-3">
                             Categories
                         </h3>
-                        <div className="flex flex-col gap-1">
-                            <button
-                                onClick={() => selectCategory(null)}
-                                className={`text-left px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
-                                    selectedCategoryId === null
-                                        ? 'bg-[#B5502E]/10 text-[#B5502E] border-[#B5502E]/40'
-                                        : 'text-[#7A6A5A] border-transparent hover:bg-[#F6EEE2]'
-                                }`}
-                            >
-                                All Categories
-                            </button>
-                            {categories.map((category) => (
+
+                        <button
+                            onClick={() => setCategoryDropdownOpen((v) => !v)}
+                            className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
+                                categoryDropdownOpen
+                                    ? 'bg-[#F97316]/10 text-[#F97316] border-[#F97316]/40'
+                                    : 'text-[#2B1D14] border-[#E4D5C1] hover:bg-[#F6EEE2]'
+                            }`}
+                        >
+                            <span>{selectedCategoryName}</span>
+                            <ChevronDown
+                                size={16}
+                                className={`transition-transform ${categoryDropdownOpen ? 'rotate-180' : ''}`}
+                            />
+                        </button>
+
+                        {categoryDropdownOpen && (
+                            <div className="flex flex-col gap-1 mt-2 border border-[#E4D5C1] rounded-lg p-2">
                                 <button
-                                    key={category.id}
-                                    onClick={() => selectCategory(category.id)}
+                                    onClick={() => selectCategory(null)}
                                     className={`text-left px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
-                                        selectedCategoryId === category.id
-                                            ? 'bg-[#B5502E]/10 text-[#B5502E] border-[#B5502E]/40'
+                                        selectedCategoryId === null
+                                            ? 'bg-[#F97316]/10 text-[#F97316] border-[#F97316]/40'
                                             : 'text-[#7A6A5A] border-transparent hover:bg-[#F6EEE2]'
                                     }`}
                                 >
-                                    {category.name}
+                                    All Categories
                                 </button>
-                            ))}
-                        </div>
+                                {categories.map((category) => (
+                                    <button
+                                        key={category.id}
+                                        onClick={() => selectCategory(category.id)}
+                                        className={`text-left px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
+                                            selectedCategoryId === category.id
+                                                ? 'bg-[#F97316]/10 text-[#F97316] border-[#F97316]/40'
+                                                : 'text-[#7A6A5A] border-transparent hover:bg-[#F6EEE2]'
+                                        }`}
+                                    >
+                                        {category.name}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     <div className="mb-8">
@@ -311,16 +339,16 @@ function ProductsPage() {
                                 placeholder="Min"
                                 value={minPrice}
                                 onChange={(e) => setMinPrice(sanitizeDigits(e.target.value))}
-                                className="w-1/2 px-2 py-1.5 text-sm border border-[#E4D5C1] rounded-lg bg-white text-[#2B1D14] focus:outline-none focus:ring-2 focus:ring-[#B5502E]"
+                                className="w-1/2 px-2 py-1.5 text-sm border border-[#2B1D14]/20 rounded-md bg-white text-[#2B1D14] font-semibold placeholder-[#7A6A5A] focus:outline-none focus:ring-2 focus:ring-[#F97316]"
                             />
-                            <span className="text-[#D9CBB8]">-</span>
+                            <span className="text-[#2B1D14] font-semibold">-</span>
                             <input
                                 type="text"
                                 inputMode="numeric"
                                 placeholder="Max"
                                 value={maxPrice}
                                 onChange={(e) => setMaxPrice(sanitizeDigits(e.target.value))}
-                                className="w-1/2 px-2 py-1.5 text-sm border border-[#E4D5C1] rounded-lg bg-white text-[#2B1D14] focus:outline-none focus:ring-2 focus:ring-[#B5502E]"
+                                className="w-1/2 px-2 py-1.5 text-sm border border-[#2B1D14]/20 rounded-md bg-white text-[#2B1D14] font-semibold placeholder-[#7A6A5A] focus:outline-none focus:ring-2 focus:ring-[#F97316]"
                             />
                         </div>
                         <div className="dual-range">
@@ -353,7 +381,7 @@ function ProductsPage() {
 
                     <button
                         onClick={clearFilters}
-                        className="mt-auto text-sm font-medium text-[#7A6A5A] border border-[#E4D5C1] rounded-lg py-2 hover:bg-[#F6EEE2] transition-colors"
+                        className="mt-auto text-sm font-bold text-[#2B1D14] border-2 border-[#2B1D14]/25 rounded-lg py-2 hover:bg-[#F6EEE2] transition-colors"
                     >
                         Clear Filters
                     </button>
@@ -377,7 +405,7 @@ function ProductsPage() {
                                 <select
                                     value={sortOption}
                                     onChange={(e) => setSortOption(e.target.value as SortOption)}
-                                    className="text-sm border border-[#B5502E]/30 rounded-lg px-3 py-2 bg-white text-[#2B1D14] focus:outline-none focus:ring-2 focus:ring-[#B5502E]"
+                                    className="text-sm border border-[#E4D5C1] rounded-md px-3 py-2 bg-white text-[#2B1D14] focus:outline-none focus:ring-2 focus:ring-[#F97316]"
                                 >
                                     <option value="newest">Sort by: Newest</option>
                                     <option value="price-asc">Price: Low to High</option>
@@ -386,16 +414,16 @@ function ProductsPage() {
                                 </select>
                             </div>
 
-                            <div className="flex items-center border border-[#B5502E]/30 rounded-lg overflow-hidden">
+                            <div className="flex items-center border border-[#E4D5C1] rounded-lg overflow-hidden">
                                 <button
                                     onClick={() => setViewMode('grid')}
-                                    className={`p-2 ${viewMode === 'grid' ? 'bg-[#B5502E] text-white' : 'bg-white text-[#7A6A5A] hover:bg-[#F6EEE2]'}`}
+                                    className={`p-2 ${viewMode === 'grid' ? 'bg-[#2B1D14] text-white' : 'bg-white text-[#7A6A5A] hover:bg-[#F6EEE2]'}`}
                                 >
                                     <LayoutGrid size={16} />
                                 </button>
                                 <button
                                     onClick={() => setViewMode('list')}
-                                    className={`p-2 ${viewMode === 'list' ? 'bg-[#B5502E] text-white' : 'bg-white text-[#7A6A5A] hover:bg-[#F6EEE2]'}`}
+                                    className={`p-2 ${viewMode === 'list' ? 'bg-[#2B1D14] text-white' : 'bg-white text-[#7A6A5A] hover:bg-[#F6EEE2]'}`}
                                 >
                                     <List size={16} />
                                 </button>
@@ -412,14 +440,14 @@ function ProductsPage() {
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                     placeholder="Search products..."
-                                    className="w-full pl-9 pr-3 py-2 text-sm border border-[#E4D5C1] rounded-lg bg-white text-[#2B1D14] placeholder-[#B8A896] focus:outline-none focus:ring-2 focus:ring-[#B5502E]"
+                                    className="w-full pl-9 pr-3 py-2 text-sm border border-[#E4D5C1]/70 rounded-md bg-white text-[#2B1D14] placeholder-[#B8A896] focus:outline-none focus:ring-2 focus:ring-[#F97316]"
                                 />
                             </div>
                             <button
                                 onClick={() => setMobileFiltersOpen((v) => !v)}
                                 className={`shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium border ${
                                     mobileFiltersOpen
-                                        ? 'bg-[#B5502E] text-white border-[#B5502E]'
+                                        ? 'bg-[#2B1D14] text-white border-[#2B1D14]'
                                         : 'bg-white text-[#7A6A5A] border-[#E4D5C1]'
                                 }`}
                             >
@@ -433,7 +461,7 @@ function ProductsPage() {
                                 onClick={() => selectCategory(null)}
                                 className={`shrink-0 px-4 py-1.5 rounded-full text-sm font-medium border transition-colors ${
                                     selectedCategoryId === null
-                                        ? 'bg-[#B5502E] text-white border-[#B5502E]'
+                                        ? 'bg-[#F97316] text-white border-[#F97316]'
                                         : 'bg-white border-[#E4D5C1] text-[#7A6A5A]'
                                 }`}
                             >
@@ -445,7 +473,7 @@ function ProductsPage() {
                                     onClick={() => selectCategory(category.id)}
                                     className={`shrink-0 px-4 py-1.5 rounded-full text-sm font-medium border transition-colors ${
                                         selectedCategoryId === category.id
-                                            ? 'bg-[#B5502E] text-white border-[#B5502E]'
+                                            ? 'bg-[#F97316] text-white border-[#F97316]'
                                             : 'bg-white border-[#E4D5C1] text-[#7A6A5A]'
                                     }`}
                                 >
@@ -466,16 +494,16 @@ function ProductsPage() {
                                         placeholder="Min"
                                         value={minPrice}
                                         onChange={(e) => setMinPrice(sanitizeDigits(e.target.value))}
-                                        className="w-1/2 px-2 py-1.5 text-sm border border-[#E4D5C1] rounded-lg bg-white text-[#2B1D14] focus:outline-none focus:ring-2 focus:ring-[#B5502E]"
+                                        className="w-1/2 px-2 py-1.5 text-sm border border-[#2B1D14]/20 rounded-md bg-white text-[#2B1D14] font-semibold placeholder-[#7A6A5A] focus:outline-none focus:ring-2 focus:ring-[#F97316]"
                                     />
-                                    <span className="text-[#D9CBB8]">-</span>
+                                    <span className="text-[#2B1D14] font-semibold">-</span>
                                     <input
                                         type="text"
                                         inputMode="numeric"
                                         placeholder="Max"
                                         value={maxPrice}
                                         onChange={(e) => setMaxPrice(sanitizeDigits(e.target.value))}
-                                        className="w-1/2 px-2 py-1.5 text-sm border border-[#E4D5C1] rounded-lg bg-white text-[#2B1D14] focus:outline-none focus:ring-2 focus:ring-[#B5502E]"
+                                        className="w-1/2 px-2 py-1.5 text-sm border border-[#2B1D14]/20 rounded-md bg-white text-[#2B1D14] font-semibold placeholder-[#7A6A5A] focus:outline-none focus:ring-2 focus:ring-[#F97316]"
                                     />
                                 </div>
                                 <div className="dual-range">
@@ -506,7 +534,7 @@ function ProductsPage() {
                                 </div>
                                 <button
                                     onClick={clearFilters}
-                                    className="w-full text-sm font-medium text-[#7A6A5A] border border-[#E4D5C1] rounded-lg py-2 hover:bg-[#F6EEE2] transition-colors"
+                                    className="w-full text-sm font-bold text-[#2B1D14] border-2 border-[#2B1D14]/25 rounded-lg py-2 hover:bg-[#F6EEE2] transition-colors"
                                 >
                                     Clear Filters
                                 </button>
@@ -528,7 +556,7 @@ function ProductsPage() {
                                 return (
                                     <div
                                         key={product.id}
-                                        className="bg-white rounded-xl shadow-sm border border-[#B5502E]/30 overflow-hidden flex flex-col hover:shadow-lg hover:border-[#B5502E] hover:-translate-y-0.5 transition-all"
+                                        className="bg-white rounded-xl shadow-sm border border-[#F97316]/30 overflow-hidden flex flex-col hover:shadow-lg hover:border-[#F97316] hover:-translate-y-0.5 transition-all"
                                     >
                                         <div
                                             className="h-36 bg-white border-b border-[#F0E6D6] p-1 flex items-center justify-center overflow-hidden cursor-pointer"
@@ -557,7 +585,7 @@ function ProductsPage() {
                                                         type="button"
                                                         onClick={() => step(product.id, -1, stock)}
                                                         disabled={stock === 0}
-                                                        className="w-7 h-7 bg-[#B5502E] hover:bg-[#9C4325] border border-[#8B3D1F] text-white rounded flex items-center justify-center disabled:opacity-40 transition-colors"
+                                                        className="w-10 h-7 bg-white hover:bg-[#2B1D14]/5 border border-[#2B1D14]/40 text-[#2B1D14] rounded flex items-center justify-center disabled:opacity-40 transition-colors"
                                                     >
                                                         <Minus size={12} />
                                                     </button>
@@ -574,7 +602,7 @@ function ProductsPage() {
                                                         type="button"
                                                         onClick={() => step(product.id, 1, stock)}
                                                         disabled={stock === 0}
-                                                        className="w-7 h-7 bg-[#B5502E] hover:bg-[#9C4325] border border-[#8B3D1F] text-white rounded flex items-center justify-center disabled:opacity-40 transition-colors"
+                                                        className="w-10 h-7 bg-white hover:bg-[#2B1D14]/5 border border-[#2B1D14]/40 text-[#2B1D14] rounded flex items-center justify-center disabled:opacity-40 transition-colors"
                                                     >
                                                         <Plus size={12} />
                                                     </button>
@@ -584,7 +612,7 @@ function ProductsPage() {
                                             <button
                                                 onClick={() => handleAddToCart(product.id)}
                                                 disabled={!user || stock === 0}
-                                                className="mt-3 w-full bg-[#B5502E] hover:bg-[#9C4325] border border-[#8B3D1F] text-white text-sm font-medium py-2 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+                                                className="mt-3 w-full bg-[#F97316] hover:bg-[#EA580C] border border-[#C2410C] text-white text-sm font-medium py-2 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
                                             >
                                                 <ShoppingCart size={14} />
                                                 Add to cart
@@ -602,7 +630,7 @@ function ProductsPage() {
                                 return (
                                     <div
                                         key={product.id}
-                                        className="bg-white rounded-xl shadow-sm border border-[#B5502E]/30 p-4 flex items-center gap-4 hover:shadow-lg hover:border-[#B5502E] transition-all"
+                                        className="bg-white rounded-xl shadow-sm border border-[#F97316]/30 p-4 flex items-center gap-4 hover:shadow-lg hover:border-[#F97316] transition-all"
                                     >
                                         <div
                                             className="w-20 h-20 shrink-0 bg-white border border-[#F0E6D6] rounded-lg flex items-center justify-center overflow-hidden cursor-pointer"
@@ -622,7 +650,7 @@ function ProductsPage() {
 
                                         <div className="flex-1 min-w-0">
                                             <p className="font-semibold text-[#2B1D14] truncate">{product.name}</p>
-                                            <span className="text-[11px] uppercase tracking-wide text-[#B5502E] font-semibold">
+                                            <span className="text-[11px] uppercase tracking-wide text-[#F97316] font-semibold">
                                                 {product.categoryName}
                                             </span>
                                             <p className={`text-xs mt-1 ${stockLabelClass(stock)}`}>{stockLabelText(stock)}</p>
@@ -636,7 +664,7 @@ function ProductsPage() {
                                                     type="button"
                                                     onClick={() => step(product.id, -1, stock)}
                                                     disabled={stock === 0}
-                                                    className="w-7 h-7 bg-[#B5502E] hover:bg-[#9C4325] border border-[#8B3D1F] text-white rounded flex items-center justify-center disabled:opacity-40 transition-colors"
+                                                    className="w-10 h-7 bg-white hover:bg-[#2B1D14]/5 border border-[#2B1D14]/40 text-[#2B1D14] rounded flex items-center justify-center disabled:opacity-40 transition-colors"
                                                 >
                                                     <Minus size={12} />
                                                 </button>
@@ -653,7 +681,7 @@ function ProductsPage() {
                                                     type="button"
                                                     onClick={() => step(product.id, 1, stock)}
                                                     disabled={stock === 0}
-                                                    className="w-7 h-7 bg-[#B5502E] hover:bg-[#9C4325] border border-[#8B3D1F] text-white rounded flex items-center justify-center disabled:opacity-40 transition-colors"
+                                                    className="w-10 h-7 bg-white hover:bg-[#2B1D14]/5 border border-[#2B1D14]/40 text-[#2B1D14] rounded flex items-center justify-center disabled:opacity-40 transition-colors"
                                                 >
                                                     <Plus size={12} />
                                                 </button>
@@ -664,7 +692,7 @@ function ProductsPage() {
                                             <button
                                                 onClick={() => handleAddToCart(product.id)}
                                                 disabled={stock === 0}
-                                                className="bg-[#B5502E] hover:bg-[#9C4325] border border-[#8B3D1F] text-white p-2 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-colors shrink-0"
+                                                className="bg-[#F97316] hover:bg-[#EA580C] border border-[#C2410C] text-white p-2 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-colors shrink-0"
                                             >
                                                 <ShoppingCart size={18} />
                                             </button>
@@ -680,19 +708,21 @@ function ProductsPage() {
                             <button
                                 disabled={page <= 1}
                                 onClick={() => setPage((p) => p - 1)}
-                                className="text-sm px-3 py-1.5 rounded border border-[#B5502E]/30 bg-white text-[#7A6A5A] disabled:opacity-40"
+                                className="flex items-center gap-1 text-sm font-semibold px-4 py-2 rounded-lg border-2 border-[#F97316]/40 bg-white text-[#2B1D14] hover:bg-[#F97316] hover:text-white hover:border-[#F97316] disabled:opacity-40 disabled:hover:bg-white disabled:hover:text-[#2B1D14] disabled:hover:border-[#F97316]/40 transition-colors"
                             >
+                                <ChevronLeft size={16} />
                                 Previous
                             </button>
-                            <span className="text-sm text-[#7A6A5A] font-medium">
+                            <span className="text-sm text-[#2B1D14] font-semibold">
                                 Page {page} of {totalPages}
                             </span>
                             <button
                                 disabled={page >= totalPages}
                                 onClick={() => setPage((p) => p + 1)}
-                                className="text-sm px-3 py-1.5 rounded border border-[#B5502E]/30 bg-white text-[#7A6A5A] disabled:opacity-40"
+                                className="flex items-center gap-1 text-sm font-semibold px-4 py-2 rounded-lg border-2 border-[#F97316]/40 bg-white text-[#2B1D14] hover:bg-[#F97316] hover:text-white hover:border-[#F97316] disabled:opacity-40 disabled:hover:bg-white disabled:hover:text-[#2B1D14] disabled:hover:border-[#F97316]/40 transition-colors"
                             >
                                 Next
+                                <ChevronRight size={16} />
                             </button>
                         </div>
                     )}

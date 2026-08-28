@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { NavLink, useNavigate } from 'react-router-dom'
+import { NavLink, useNavigate, useLocation } from 'react-router-dom'
 import {
     ShoppingCart,
     Package,
@@ -21,16 +21,18 @@ function Navbar() {
     const { user, logout } = useAuth()
     const { cart } = useCart()
     const navigate = useNavigate()
+    const location = useLocation()
     const [mobileOpen, setMobileOpen] = useState(false)
     const [userMenuOpen, setUserMenuOpen] = useState(false)
 
     const cartCount = cart?.items.reduce((sum, i) => sum + i.quantity, 0) ?? 0
     const isAdmin = user?.roles.includes('Admin')
+    const isCartActive = location.pathname === '/cart'
 
     function navLinkClass({ isActive }: { isActive: boolean }) {
         return `flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
             isActive
-                ? 'bg-[#B5502E]/10 text-[#B5502E] border-[#B5502E]/40'
+                ? 'bg-[#F97316]/10 text-[#F97316] border-[#F97316]/40'
                 : 'text-[#7A6A5A] border-transparent hover:bg-[#F6EEE2] hover:text-[#2B1D14]'
         }`
     }
@@ -38,7 +40,7 @@ function Navbar() {
     function mobileNavLinkClass({ isActive }: { isActive: boolean }) {
         return `flex items-center gap-2 px-2 py-2 rounded-lg text-sm font-medium border ${
             isActive
-                ? 'bg-[#B5502E]/10 text-[#B5502E] border-[#B5502E]/40'
+                ? 'bg-[#F97316]/10 text-[#F97316] border-[#F97316]/40'
                 : 'text-[#7A6A5A] border-transparent hover:bg-[#F6EEE2]'
         }`
     }
@@ -71,8 +73,8 @@ function Navbar() {
                         </button>
 
                         <NavLink to="/" className="flex items-center gap-2">
-                            <div className="w-8 h-8 rounded-lg bg-[#B5502E] flex items-center justify-center shrink-0">
-                                <Store size={18} className="text-white" />
+                            <div className="w-8 h-8 rounded-lg bg-[#2B1D14] flex items-center justify-center shrink-0">
+                                <Store size={18} className="text-[#F97316]" />
                             </div>
                             <span
                                 className="text-[#2B1D14] text-lg whitespace-nowrap"
@@ -110,10 +112,17 @@ function Navbar() {
 
                     <div className="flex items-center justify-end gap-4">
                         {user && (
-                            <NavLink to="/cart" className="relative text-[#7A6A5A] hover:text-[#B5502E] transition-colors">
-                                <ShoppingCart size={20} />
+                            <NavLink
+                                to="/cart"
+                                className={`relative flex items-center justify-center w-9 h-9 rounded-lg transition-colors ${
+                                    isCartActive
+                                        ? 'bg-[#2B1D14] text-[#F97316]'
+                                        : 'text-[#7A6A5A] hover:bg-[#2B1D14]/5 hover:text-[#2B1D14]'
+                                }`}
+                            >
+                                <ShoppingCart size={20} fill={isCartActive ? 'currentColor' : 'none'} />
                                 {cartCount > 0 && (
-                                    <span className="absolute -top-2 -right-2 bg-[#B5502E] text-white text-[10px] font-semibold w-4 h-4 rounded-full flex items-center justify-center">
+                                    <span className="absolute -top-1 -right-1 bg-[#F97316] text-white text-[10px] font-semibold w-4 h-4 rounded-full flex items-center justify-center ring-2 ring-white">
                                         {cartCount > 9 ? '9+' : cartCount}
                                     </span>
                                 )}
@@ -126,7 +135,7 @@ function Navbar() {
                                     onClick={() => setUserMenuOpen((v) => !v)}
                                     className="flex items-center gap-2"
                                 >
-                                    <div className="w-8 h-8 rounded-full bg-[#B5502E]/10 text-[#B5502E] border border-[#B5502E]/30 text-xs font-semibold flex items-center justify-center">
+                                    <div className="w-8 h-8 rounded-full bg-[#2B1D14] text-[#F97316] border border-[#2B1D14] text-xs font-semibold flex items-center justify-center">
                                         {initials}
                                     </div>
                                     <span className="hidden sm:block text-sm font-medium text-[#2B1D14] whitespace-nowrap">
@@ -163,7 +172,7 @@ function Navbar() {
                                 </NavLink>
                                 <NavLink
                                     to="/register"
-                                    className="text-sm font-medium bg-[#B5502E] hover:bg-[#9C4325] border border-[#8B3D1F] text-white px-4 py-2 rounded-lg transition-colors whitespace-nowrap"
+                                    className="text-sm font-medium bg-[#F97316] hover:bg-[#EA580C] border border-[#C2410C] text-white px-4 py-2 rounded-lg transition-colors whitespace-nowrap"
                                 >
                                     Register
                                 </NavLink>
