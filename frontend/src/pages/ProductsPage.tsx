@@ -35,10 +35,10 @@ function clampToMax(value: string, max: number) {
 }
 
 function stockLabelClass(stock: number) {
-    if (stock === 0) return 'text-red-600 font-semibold'
-    if (stock <= 5) return 'text-orange-600 font-semibold'
-    if (stock <= 20) return 'text-blue-600 font-semibold'
-    return 'text-green-600 font-semibold'
+    if (stock === 0) return 'text-red-400 font-semibold'
+    if (stock <= 5) return 'text-[#FB923C] font-semibold'
+    if (stock <= 20) return 'text-sky-400 font-semibold'
+    return 'text-emerald-400 font-semibold'
 }
 
 function stockLabelText(stock: number) {
@@ -221,10 +221,10 @@ function ProductsPage() {
             ? 'All Categories'
             : categories.find((c) => c.id === selectedCategoryId)?.name ?? 'All Categories'
 
-    if (error) return <p className="p-8 text-[#9C4325]">{error}</p>
+    if (error) return <p className="p-8 text-red-400 bg-[#161513] min-h-screen">{error}</p>
 
     return (
-        <div className="min-h-screen bg-white">
+        <div className="min-h-screen bg-[#161513]">
             <style>{`
                 .dual-range { position: relative; height: 20px; }
                 .dual-range input[type='range'] {
@@ -244,8 +244,8 @@ function ProductsPage() {
                     height: 16px;
                     border-radius: 9999px;
                     background: #F97316;
-                    border: 2px solid white;
-                    box-shadow: 0 1px 3px rgba(43,29,20,0.3);
+                    border: 2px solid #161513;
+                    box-shadow: 0 1px 3px rgba(0,0,0,0.5);
                     cursor: pointer;
                     margin-top: -6px;
                 }
@@ -255,32 +255,33 @@ function ProductsPage() {
                     height: 16px;
                     border-radius: 9999px;
                     background: #F97316;
-                    border: 2px solid white;
-                    box-shadow: 0 1px 3px rgba(43,29,20,0.3);
+                    border: 2px solid #161513;
+                    box-shadow: 0 1px 3px rgba(0,0,0,0.5);
                     cursor: pointer;
                 }
                 .dual-range input[type='range']::-webkit-slider-runnable-track {
                     height: 4px;
+                    background: #2E2A24;
                 }
                 .scrollbar-hide::-webkit-scrollbar { display: none; }
                 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
             `}</style>
 
             <div className="flex">
-                <aside className="hidden lg:flex flex-col w-72 shrink-0 border-r border-[#E4D5C1] bg-white p-6 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto">
+                <aside className="hidden lg:flex flex-col w-72 shrink-0 border-r border-[#2E2A24] bg-[#1C1A17] p-6 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto">
                     <div className="relative mb-6">
-                        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#B8A896]" />
+                        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5C574E]" />
                         <input
                             type="text"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             placeholder="Search products..."
-                            className="w-full pl-9 pr-3 py-2 text-sm border border-[#E4D5C1]/70 rounded-md bg-white text-[#2B1D14] placeholder-[#B8A896] focus:outline-none focus:ring-2 focus:ring-[#F97316]"
+                            className="w-full pl-9 pr-3 py-2 text-sm border border-[#2E2A24] rounded-md bg-[#161513] text-[#F5F1EA] placeholder-[#5C574E] focus:outline-none focus:ring-1 focus:ring-[#F97316] focus:border-[#F97316]"
                         />
                     </div>
 
                     <div className="mb-8">
-                        <h3 className="text-xs font-semibold text-[#B8A896] uppercase tracking-wide mb-3">
+                        <h3 className="text-xs font-semibold text-[#5C574E] uppercase tracking-wide mb-3">
                             Categories
                         </h3>
 
@@ -289,7 +290,7 @@ function ProductsPage() {
                             className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
                                 categoryDropdownOpen
                                     ? 'bg-[#F97316]/10 text-[#F97316] border-[#F97316]/40'
-                                    : 'text-[#2B1D14] border-[#E4D5C1] hover:bg-[#F6EEE2]'
+                                    : 'text-[#F5F1EA] border-[#2E2A24] hover:bg-[#242019]'
                             }`}
                         >
                             <span>{selectedCategoryName}</span>
@@ -300,13 +301,13 @@ function ProductsPage() {
                         </button>
 
                         {categoryDropdownOpen && (
-                            <div className="flex flex-col gap-1 mt-2 border border-[#E4D5C1] rounded-lg p-2">
+                            <div className="flex flex-col gap-1 mt-2 border border-[#2E2A24] rounded-lg p-2 bg-[#161513]">
                                 <button
                                     onClick={() => selectCategory(null)}
                                     className={`text-left px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
                                         selectedCategoryId === null
                                             ? 'bg-[#F97316]/10 text-[#F97316] border-[#F97316]/40'
-                                            : 'text-[#7A6A5A] border-transparent hover:bg-[#F6EEE2]'
+                                            : 'text-[#8C857A] border-transparent hover:bg-[#242019]'
                                     }`}
                                 >
                                     All Categories
@@ -318,7 +319,7 @@ function ProductsPage() {
                                         className={`text-left px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
                                             selectedCategoryId === category.id
                                                 ? 'bg-[#F97316]/10 text-[#F97316] border-[#F97316]/40'
-                                                : 'text-[#7A6A5A] border-transparent hover:bg-[#F6EEE2]'
+                                                : 'text-[#8C857A] border-transparent hover:bg-[#242019]'
                                         }`}
                                     >
                                         {category.name}
@@ -329,7 +330,7 @@ function ProductsPage() {
                     </div>
 
                     <div className="mb-8">
-                        <h3 className="text-xs font-semibold text-[#B8A896] uppercase tracking-wide mb-3">
+                        <h3 className="text-xs font-semibold text-[#5C574E] uppercase tracking-wide mb-3">
                             Price Range
                         </h3>
                         <div className="flex items-center gap-2 mb-4">
@@ -339,16 +340,16 @@ function ProductsPage() {
                                 placeholder="Min"
                                 value={minPrice}
                                 onChange={(e) => setMinPrice(sanitizeDigits(e.target.value))}
-                                className="w-1/2 px-2 py-1.5 text-sm border border-[#2B1D14]/20 rounded-md bg-white text-[#2B1D14] font-semibold placeholder-[#7A6A5A] focus:outline-none focus:ring-2 focus:ring-[#F97316]"
+                                className="w-1/2 px-2 py-1.5 text-sm border border-[#2E2A24] rounded-md bg-[#161513] text-[#F5F1EA] font-semibold placeholder-[#5C574E] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
                             />
-                            <span className="text-[#2B1D14] font-semibold">-</span>
+                            <span className="text-[#F5F1EA] font-semibold">-</span>
                             <input
                                 type="text"
                                 inputMode="numeric"
                                 placeholder="Max"
                                 value={maxPrice}
                                 onChange={(e) => setMaxPrice(sanitizeDigits(e.target.value))}
-                                className="w-1/2 px-2 py-1.5 text-sm border border-[#2B1D14]/20 rounded-md bg-white text-[#2B1D14] font-semibold placeholder-[#7A6A5A] focus:outline-none focus:ring-2 focus:ring-[#F97316]"
+                                className="w-1/2 px-2 py-1.5 text-sm border border-[#2E2A24] rounded-md bg-[#161513] text-[#F5F1EA] font-semibold placeholder-[#5C574E] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
                             />
                         </div>
                         <div className="dual-range">
@@ -373,7 +374,7 @@ function ProductsPage() {
                                 }}
                             />
                         </div>
-                        <div className="flex justify-between text-xs text-[#B8A896] mt-2">
+                        <div className="flex justify-between text-xs text-[#5C574E] mt-2">
                             <span>$0</span>
                             <span>${PRICE_CEILING}+</span>
                         </div>
@@ -381,31 +382,31 @@ function ProductsPage() {
 
                     <button
                         onClick={clearFilters}
-                        className="mt-auto text-sm font-bold text-[#2B1D14] border-2 border-[#2B1D14]/25 rounded-lg py-2 hover:bg-[#F6EEE2] transition-colors"
+                        className="mt-auto text-sm font-bold text-[#F5F1EA] border-2 border-[#2E2A24] rounded-lg py-2 hover:bg-[#242019] hover:border-[#F97316]/40 transition-colors"
                     >
                         Clear Filters
                     </button>
                 </aside>
 
-                <main className="flex-1 p-6 lg:p-8 bg-white">
+                <main className="flex-1 p-6 lg:p-8 bg-[#161513]">
                     <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
                         <div>
-                            <h1
-                                className="text-2xl text-[#2B1D14]"
-                                style={{ fontFamily: "'Fraunces', serif", fontWeight: 600 }}
-                            >
+                            <span className="block text-[#F97316] text-xs font-semibold uppercase tracking-widest mb-1">
+                                Catalog
+                            </span>
+                            <h1 className="text-2xl font-bold text-[#F5F1EA]">
                                 Products
                             </h1>
-                            <p className="text-sm text-[#7A6A5A] mt-1">Browse our full collection.</p>
+                            <p className="text-sm text-[#8C857A] mt-1">Browse our full collection.</p>
                         </div>
 
                         <div className="flex items-center gap-3">
                             <div className="flex items-center gap-2">
-                                <SlidersHorizontal size={14} className="text-[#7A6A5A]" />
+                                <SlidersHorizontal size={14} className="text-[#8C857A]" />
                                 <select
                                     value={sortOption}
                                     onChange={(e) => setSortOption(e.target.value as SortOption)}
-                                    className="text-sm border border-[#E4D5C1] rounded-md px-3 py-2 bg-white text-[#2B1D14] focus:outline-none focus:ring-2 focus:ring-[#F97316]"
+                                    className="text-sm border border-[#2E2A24] rounded-md px-3 py-2 bg-[#1C1A17] text-[#F5F1EA] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
                                 >
                                     <option value="newest">Sort by: Newest</option>
                                     <option value="price-asc">Price: Low to High</option>
@@ -414,16 +415,16 @@ function ProductsPage() {
                                 </select>
                             </div>
 
-                            <div className="flex items-center border border-[#E4D5C1] rounded-lg overflow-hidden">
+                            <div className="flex items-center border border-[#2E2A24] rounded-lg overflow-hidden">
                                 <button
                                     onClick={() => setViewMode('grid')}
-                                    className={`p-2 ${viewMode === 'grid' ? 'bg-[#2B1D14] text-white' : 'bg-white text-[#7A6A5A] hover:bg-[#F6EEE2]'}`}
+                                    className={`p-2 ${viewMode === 'grid' ? 'bg-[#F97316] text-[#161513]' : 'bg-[#1C1A17] text-[#8C857A] hover:bg-[#242019]'}`}
                                 >
                                     <LayoutGrid size={16} />
                                 </button>
                                 <button
                                     onClick={() => setViewMode('list')}
-                                    className={`p-2 ${viewMode === 'list' ? 'bg-[#2B1D14] text-white' : 'bg-white text-[#7A6A5A] hover:bg-[#F6EEE2]'}`}
+                                    className={`p-2 ${viewMode === 'list' ? 'bg-[#F97316] text-[#161513]' : 'bg-[#1C1A17] text-[#8C857A] hover:bg-[#242019]'}`}
                                 >
                                     <List size={16} />
                                 </button>
@@ -434,21 +435,21 @@ function ProductsPage() {
                     <div className="lg:hidden mb-4 flex flex-col gap-3">
                         <div className="flex items-center gap-2">
                             <div className="relative flex-1">
-                                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#B8A896]" />
+                                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5C574E]" />
                                 <input
                                     type="text"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                     placeholder="Search products..."
-                                    className="w-full pl-9 pr-3 py-2 text-sm border border-[#E4D5C1]/70 rounded-md bg-white text-[#2B1D14] placeholder-[#B8A896] focus:outline-none focus:ring-2 focus:ring-[#F97316]"
+                                    className="w-full pl-9 pr-3 py-2 text-sm border border-[#2E2A24] rounded-md bg-[#1C1A17] text-[#F5F1EA] placeholder-[#5C574E] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
                                 />
                             </div>
                             <button
                                 onClick={() => setMobileFiltersOpen((v) => !v)}
                                 className={`shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium border ${
                                     mobileFiltersOpen
-                                        ? 'bg-[#2B1D14] text-white border-[#2B1D14]'
-                                        : 'bg-white text-[#7A6A5A] border-[#E4D5C1]'
+                                        ? 'bg-[#F97316] text-[#161513] border-[#F97316]'
+                                        : 'bg-[#1C1A17] text-[#8C857A] border-[#2E2A24]'
                                 }`}
                             >
                                 <SlidersHorizontal size={14} />
@@ -461,8 +462,8 @@ function ProductsPage() {
                                 onClick={() => selectCategory(null)}
                                 className={`shrink-0 px-4 py-1.5 rounded-full text-sm font-medium border transition-colors ${
                                     selectedCategoryId === null
-                                        ? 'bg-[#F97316] text-white border-[#F97316]'
-                                        : 'bg-white border-[#E4D5C1] text-[#7A6A5A]'
+                                        ? 'bg-[#F97316] text-[#161513] border-[#F97316]'
+                                        : 'bg-[#1C1A17] border-[#2E2A24] text-[#8C857A]'
                                 }`}
                             >
                                 All
@@ -473,8 +474,8 @@ function ProductsPage() {
                                     onClick={() => selectCategory(category.id)}
                                     className={`shrink-0 px-4 py-1.5 rounded-full text-sm font-medium border transition-colors ${
                                         selectedCategoryId === category.id
-                                            ? 'bg-[#F97316] text-white border-[#F97316]'
-                                            : 'bg-white border-[#E4D5C1] text-[#7A6A5A]'
+                                            ? 'bg-[#F97316] text-[#161513] border-[#F97316]'
+                                            : 'bg-[#1C1A17] border-[#2E2A24] text-[#8C857A]'
                                     }`}
                                 >
                                     {category.name}
@@ -483,8 +484,8 @@ function ProductsPage() {
                         </div>
 
                         {mobileFiltersOpen && (
-                            <div className="bg-white border border-[#E4D5C1] rounded-lg p-4">
-                                <h3 className="text-xs font-semibold text-[#B8A896] uppercase tracking-wide mb-3">
+                            <div className="bg-[#1C1A17] border border-[#2E2A24] rounded-lg p-4">
+                                <h3 className="text-xs font-semibold text-[#5C574E] uppercase tracking-wide mb-3">
                                     Price Range
                                 </h3>
                                 <div className="flex items-center gap-2 mb-4">
@@ -494,16 +495,16 @@ function ProductsPage() {
                                         placeholder="Min"
                                         value={minPrice}
                                         onChange={(e) => setMinPrice(sanitizeDigits(e.target.value))}
-                                        className="w-1/2 px-2 py-1.5 text-sm border border-[#2B1D14]/20 rounded-md bg-white text-[#2B1D14] font-semibold placeholder-[#7A6A5A] focus:outline-none focus:ring-2 focus:ring-[#F97316]"
+                                        className="w-1/2 px-2 py-1.5 text-sm border border-[#2E2A24] rounded-md bg-[#161513] text-[#F5F1EA] font-semibold placeholder-[#5C574E] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
                                     />
-                                    <span className="text-[#2B1D14] font-semibold">-</span>
+                                    <span className="text-[#F5F1EA] font-semibold">-</span>
                                     <input
                                         type="text"
                                         inputMode="numeric"
                                         placeholder="Max"
                                         value={maxPrice}
                                         onChange={(e) => setMaxPrice(sanitizeDigits(e.target.value))}
-                                        className="w-1/2 px-2 py-1.5 text-sm border border-[#2B1D14]/20 rounded-md bg-white text-[#2B1D14] font-semibold placeholder-[#7A6A5A] focus:outline-none focus:ring-2 focus:ring-[#F97316]"
+                                        className="w-1/2 px-2 py-1.5 text-sm border border-[#2E2A24] rounded-md bg-[#161513] text-[#F5F1EA] font-semibold placeholder-[#5C574E] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
                                     />
                                 </div>
                                 <div className="dual-range">
@@ -528,13 +529,13 @@ function ProductsPage() {
                                         }}
                                     />
                                 </div>
-                                <div className="flex justify-between text-xs text-[#B8A896] mt-2 mb-4">
+                                <div className="flex justify-between text-xs text-[#5C574E] mt-2 mb-4">
                                     <span>$0</span>
                                     <span>${PRICE_CEILING}+</span>
                                 </div>
                                 <button
                                     onClick={clearFilters}
-                                    className="w-full text-sm font-bold text-[#2B1D14] border-2 border-[#2B1D14]/25 rounded-lg py-2 hover:bg-[#F6EEE2] transition-colors"
+                                    className="w-full text-sm font-bold text-[#F5F1EA] border-2 border-[#2E2A24] rounded-lg py-2 hover:bg-[#242019] hover:border-[#F97316]/40 transition-colors"
                                 >
                                     Clear Filters
                                 </button>
@@ -542,12 +543,12 @@ function ProductsPage() {
                         )}
                     </div>
 
-                    {message && <p className="mb-4 text-[#3E5A2F] font-medium text-sm">{message}</p>}
+                    {message && <p className="mb-4 text-emerald-400 font-medium text-sm">{message}</p>}
 
                     {loading ? (
-                        <p className="text-[#7A6A5A] text-sm">Loading products...</p>
+                        <p className="text-[#8C857A] text-sm">Loading products...</p>
                     ) : visibleProducts.length === 0 ? (
-                        <p className="text-[#7A6A5A] text-sm">No products match your filters.</p>
+                        <p className="text-[#8C857A] text-sm">No products match your filters.</p>
                     ) : viewMode === 'grid' ? (
                         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                             {visibleProducts.map((product) => {
@@ -556,10 +557,16 @@ function ProductsPage() {
                                 return (
                                     <div
                                         key={product.id}
-                                        className="bg-white rounded-xl shadow-sm border border-[#F97316]/30 overflow-hidden flex flex-col hover:shadow-lg hover:border-[#F97316] hover:-translate-y-0.5 transition-all"
+                                        className="relative bg-[#1C1A17] border border-[#2E2A24] overflow-hidden flex flex-col hover:border-[#F97316]/60 hover:-translate-y-0.5 transition-all"
+                                        style={{
+                                            clipPath: 'polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%)',
+                                            boxShadow: '0 12px 30px -14px rgba(0,0,0,0.6)',
+                                        }}
                                     >
+                                        <div className="absolute top-0 right-0 w-4 h-4 bg-[#F97316]/70" style={{ clipPath: 'polygon(100% 0, 0 0, 100% 100%)' }} />
+
                                         <div
-                                            className="h-36 bg-white border-b border-[#F0E6D6] p-1 flex items-center justify-center overflow-hidden cursor-pointer"
+                                            className="h-36 bg-[#161513] border-b border-[#2E2A24] p-1 flex items-center justify-center overflow-hidden cursor-pointer"
                                             onClick={() => setSelectedProduct(product)}
                                         >
                                             {showImage ? (
@@ -570,13 +577,13 @@ function ProductsPage() {
                                                     onError={() => markImageBroken(product.id)}
                                                 />
                                             ) : (
-                                                <Package className="text-[#D9CBB8]" size={40} />
+                                                <Package className="text-[#3A352C]" size={40} />
                                             )}
                                         </div>
 
                                         <div className="p-4 flex flex-col flex-1">
-                                            <p className="font-semibold text-[#2B1D14] line-clamp-1">{product.name}</p>
-                                            <p className="text-lg font-bold text-[#2B1D14] mt-1">${product.price}</p>
+                                            <p className="font-semibold text-[#F5F1EA] line-clamp-1">{product.name}</p>
+                                            <p className="text-lg font-bold text-[#F97316] mt-1">${product.price}</p>
                                             <p className={`text-xs mt-1 ${stockLabelClass(stock)}`}>{stockLabelText(stock)}</p>
 
                                             {user && (
@@ -585,7 +592,7 @@ function ProductsPage() {
                                                         type="button"
                                                         onClick={() => step(product.id, -1, stock)}
                                                         disabled={stock === 0}
-                                                        className="w-10 h-7 bg-white hover:bg-[#2B1D14]/5 border border-[#2B1D14]/40 text-[#2B1D14] rounded flex items-center justify-center disabled:opacity-40 transition-colors"
+                                                        className="w-10 h-7 bg-[#161513] hover:bg-[#242019] border border-[#2E2A24] text-[#F5F1EA] rounded flex items-center justify-center disabled:opacity-40 transition-colors"
                                                     >
                                                         <Minus size={12} />
                                                     </button>
@@ -596,13 +603,13 @@ function ProductsPage() {
                                                         value={getQuantity(product.id)}
                                                         onChange={(e) => handleQuantityInput(product.id, e.target.value, stock)}
                                                         onBlur={() => handleQuantityBlur(product.id, stock)}
-                                                        className="w-full border border-[#E4D5C1] rounded px-2 py-1 text-sm text-center text-[#2B1D14] bg-white disabled:bg-[#F6EEE2]"
+                                                        className="w-full border border-[#2E2A24] rounded px-2 py-1 text-sm text-center text-[#F5F1EA] bg-[#161513] disabled:bg-[#1C1A17]"
                                                     />
                                                     <button
                                                         type="button"
                                                         onClick={() => step(product.id, 1, stock)}
                                                         disabled={stock === 0}
-                                                        className="w-10 h-7 bg-white hover:bg-[#2B1D14]/5 border border-[#2B1D14]/40 text-[#2B1D14] rounded flex items-center justify-center disabled:opacity-40 transition-colors"
+                                                        className="w-10 h-7 bg-[#161513] hover:bg-[#242019] border border-[#2E2A24] text-[#F5F1EA] rounded flex items-center justify-center disabled:opacity-40 transition-colors"
                                                     >
                                                         <Plus size={12} />
                                                     </button>
@@ -612,7 +619,7 @@ function ProductsPage() {
                                             <button
                                                 onClick={() => handleAddToCart(product.id)}
                                                 disabled={!user || stock === 0}
-                                                className="mt-3 w-full bg-[#F97316] hover:bg-[#EA580C] border border-[#C2410C] text-white text-sm font-medium py-2 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+                                                className="mt-3 w-full bg-[#F97316] hover:bg-[#EA580C] text-[#161513] text-sm font-semibold py-2 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
                                             >
                                                 <ShoppingCart size={14} />
                                                 Add to cart
@@ -630,10 +637,11 @@ function ProductsPage() {
                                 return (
                                     <div
                                         key={product.id}
-                                        className="bg-white rounded-xl shadow-sm border border-[#F97316]/30 p-4 flex items-center gap-4 hover:shadow-lg hover:border-[#F97316] transition-all"
+                                        className="bg-[#1C1A17] rounded-xl border border-[#2E2A24] p-4 flex items-center gap-4 hover:border-[#F97316]/60 transition-all"
+                                        style={{ boxShadow: '0 12px 30px -14px rgba(0,0,0,0.6)' }}
                                     >
                                         <div
-                                            className="w-20 h-20 shrink-0 bg-white border border-[#F0E6D6] rounded-lg flex items-center justify-center overflow-hidden cursor-pointer"
+                                            className="w-20 h-20 shrink-0 bg-[#161513] border border-[#2E2A24] rounded-lg flex items-center justify-center overflow-hidden cursor-pointer"
                                             onClick={() => setSelectedProduct(product)}
                                         >
                                             {showImage ? (
@@ -644,19 +652,19 @@ function ProductsPage() {
                                                     onError={() => markImageBroken(product.id)}
                                                 />
                                             ) : (
-                                                <Package className="text-[#D9CBB8]" size={28} />
+                                                <Package className="text-[#3A352C]" size={28} />
                                             )}
                                         </div>
 
                                         <div className="flex-1 min-w-0">
-                                            <p className="font-semibold text-[#2B1D14] truncate">{product.name}</p>
+                                            <p className="font-semibold text-[#F5F1EA] truncate">{product.name}</p>
                                             <span className="text-[11px] uppercase tracking-wide text-[#F97316] font-semibold">
                                                 {product.categoryName}
                                             </span>
                                             <p className={`text-xs mt-1 ${stockLabelClass(stock)}`}>{stockLabelText(stock)}</p>
                                         </div>
 
-                                        <p className="text-lg font-bold text-[#2B1D14] shrink-0">${product.price}</p>
+                                        <p className="text-lg font-bold text-[#F97316] shrink-0">${product.price}</p>
 
                                         {user && (
                                             <div className="flex items-center gap-2 shrink-0">
@@ -664,7 +672,7 @@ function ProductsPage() {
                                                     type="button"
                                                     onClick={() => step(product.id, -1, stock)}
                                                     disabled={stock === 0}
-                                                    className="w-10 h-7 bg-white hover:bg-[#2B1D14]/5 border border-[#2B1D14]/40 text-[#2B1D14] rounded flex items-center justify-center disabled:opacity-40 transition-colors"
+                                                    className="w-10 h-7 bg-[#161513] hover:bg-[#242019] border border-[#2E2A24] text-[#F5F1EA] rounded flex items-center justify-center disabled:opacity-40 transition-colors"
                                                 >
                                                     <Minus size={12} />
                                                 </button>
@@ -675,13 +683,13 @@ function ProductsPage() {
                                                     value={getQuantity(product.id)}
                                                     onChange={(e) => handleQuantityInput(product.id, e.target.value, stock)}
                                                     onBlur={() => handleQuantityBlur(product.id, stock)}
-                                                    className="w-14 border border-[#E4D5C1] rounded px-2 py-1 text-sm text-center text-[#2B1D14] bg-white disabled:bg-[#F6EEE2]"
+                                                    className="w-14 border border-[#2E2A24] rounded px-2 py-1 text-sm text-center text-[#F5F1EA] bg-[#161513] disabled:bg-[#1C1A17]"
                                                 />
                                                 <button
                                                     type="button"
                                                     onClick={() => step(product.id, 1, stock)}
                                                     disabled={stock === 0}
-                                                    className="w-10 h-7 bg-white hover:bg-[#2B1D14]/5 border border-[#2B1D14]/40 text-[#2B1D14] rounded flex items-center justify-center disabled:opacity-40 transition-colors"
+                                                    className="w-10 h-7 bg-[#161513] hover:bg-[#242019] border border-[#2E2A24] text-[#F5F1EA] rounded flex items-center justify-center disabled:opacity-40 transition-colors"
                                                 >
                                                     <Plus size={12} />
                                                 </button>
@@ -692,7 +700,7 @@ function ProductsPage() {
                                             <button
                                                 onClick={() => handleAddToCart(product.id)}
                                                 disabled={stock === 0}
-                                                className="bg-[#F97316] hover:bg-[#EA580C] border border-[#C2410C] text-white p-2 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-colors shrink-0"
+                                                className="bg-[#F97316] hover:bg-[#EA580C] text-[#161513] p-2 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-colors shrink-0"
                                             >
                                                 <ShoppingCart size={18} />
                                             </button>
@@ -708,18 +716,18 @@ function ProductsPage() {
                             <button
                                 disabled={page <= 1}
                                 onClick={() => setPage((p) => p - 1)}
-                                className="flex items-center gap-1 text-sm font-semibold px-4 py-2 rounded-lg border-2 border-[#F97316]/40 bg-white text-[#2B1D14] hover:bg-[#F97316] hover:text-white hover:border-[#F97316] disabled:opacity-40 disabled:hover:bg-white disabled:hover:text-[#2B1D14] disabled:hover:border-[#F97316]/40 transition-colors"
+                                className="flex items-center gap-1 text-sm font-semibold px-4 py-2 rounded-lg border-2 border-[#2E2A24] bg-[#1C1A17] text-[#F5F1EA] hover:bg-[#F97316] hover:text-[#161513] hover:border-[#F97316] disabled:opacity-40 disabled:hover:bg-[#1C1A17] disabled:hover:text-[#F5F1EA] disabled:hover:border-[#2E2A24] transition-colors"
                             >
                                 <ChevronLeft size={16} />
                                 Previous
                             </button>
-                            <span className="text-sm text-[#2B1D14] font-semibold">
+                            <span className="text-sm text-[#F5F1EA] font-semibold">
                                 Page {page} of {totalPages}
                             </span>
                             <button
                                 disabled={page >= totalPages}
                                 onClick={() => setPage((p) => p + 1)}
-                                className="flex items-center gap-1 text-sm font-semibold px-4 py-2 rounded-lg border-2 border-[#F97316]/40 bg-white text-[#2B1D14] hover:bg-[#F97316] hover:text-white hover:border-[#F97316] disabled:opacity-40 disabled:hover:bg-white disabled:hover:text-[#2B1D14] disabled:hover:border-[#F97316]/40 transition-colors"
+                                className="flex items-center gap-1 text-sm font-semibold px-4 py-2 rounded-lg border-2 border-[#2E2A24] bg-[#1C1A17] text-[#F5F1EA] hover:bg-[#F97316] hover:text-[#161513] hover:border-[#F97316] disabled:opacity-40 disabled:hover:bg-[#1C1A17] disabled:hover:text-[#F5F1EA] disabled:hover:border-[#2E2A24] transition-colors"
                             >
                                 Next
                                 <ChevronRight size={16} />

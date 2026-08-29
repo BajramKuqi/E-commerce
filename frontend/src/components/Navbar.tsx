@@ -33,7 +33,7 @@ function Navbar() {
         return `flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
             isActive
                 ? 'bg-[#F97316]/10 text-[#F97316] border-[#F97316]/40'
-                : 'text-[#7A6A5A] border-transparent hover:bg-[#F6EEE2] hover:text-[#2B1D14]'
+                : 'text-[#8C857A] border-transparent hover:bg-[#242019] hover:text-[#F5F1EA]'
         }`
     }
 
@@ -41,7 +41,7 @@ function Navbar() {
         return `flex items-center gap-2 px-2 py-2 rounded-lg text-sm font-medium border ${
             isActive
                 ? 'bg-[#F97316]/10 text-[#F97316] border-[#F97316]/40'
-                : 'text-[#7A6A5A] border-transparent hover:bg-[#F6EEE2]'
+                : 'text-[#8C857A] border-transparent hover:bg-[#242019]'
         }`
     }
 
@@ -61,25 +61,25 @@ function Navbar() {
         : ''
 
     return (
-        <nav className="bg-white border-b border-[#E4D5C1] sticky top-0 z-40">
+        <nav className="bg-[#1C1A17] border-b border-[#2E2A24] sticky top-0 z-40">
             <div className="w-full px-4 sm:px-6 lg:px-10">
                 <div className="grid grid-cols-[auto_1fr_auto] items-center h-16 gap-4">
                     <div className="flex items-center gap-3">
                         <button
                             onClick={() => setMobileOpen((v) => !v)}
-                            className="lg:hidden text-[#7A6A5A]"
+                            className="lg:hidden text-[#8C857A]"
                         >
                             {mobileOpen ? <X size={22} /> : <Menu size={22} />}
                         </button>
 
                         <NavLink to="/" className="flex items-center gap-2">
-                            <div className="w-8 h-8 rounded-lg bg-[#2B1D14] flex items-center justify-center shrink-0">
-                                <Store size={18} className="text-[#F97316]" />
-                            </div>
-                            <span
-                                className="text-[#2B1D14] text-lg whitespace-nowrap"
-                                style={{ fontFamily: "'Fraunces', serif", fontWeight: 600 }}
+                            <div
+                                className="relative w-8 h-8 bg-[#F97316] flex items-center justify-center shrink-0"
+                                style={{ clipPath: 'polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%)' }}
                             >
+                                <Store size={16} className="text-[#161513]" />
+                            </div>
+                            <span className="text-[#F5F1EA] text-lg font-bold whitespace-nowrap">
                                 {BRAND_NAME}
                             </span>
                         </NavLink>
@@ -116,13 +116,13 @@ function Navbar() {
                                 to="/cart"
                                 className={`relative flex items-center justify-center w-9 h-9 rounded-lg transition-colors ${
                                     isCartActive
-                                        ? 'bg-[#2B1D14] text-[#F97316]'
-                                        : 'text-[#7A6A5A] hover:bg-[#2B1D14]/5 hover:text-[#2B1D14]'
+                                        ? 'bg-[#F97316]/10 text-[#F97316]'
+                                        : 'text-[#8C857A] hover:bg-[#242019] hover:text-[#F5F1EA]'
                                 }`}
                             >
                                 <ShoppingCart size={20} fill={isCartActive ? 'currentColor' : 'none'} />
                                 {cartCount > 0 && (
-                                    <span className="absolute -top-1 -right-1 bg-[#F97316] text-white text-[10px] font-semibold w-4 h-4 rounded-full flex items-center justify-center ring-2 ring-white">
+                                    <span className="absolute -top-1 -right-1 bg-[#F97316] text-[#161513] text-[10px] font-semibold w-4 h-4 rounded-full flex items-center justify-center ring-2 ring-[#1C1A17]">
                                         {cartCount > 9 ? '9+' : cartCount}
                                     </span>
                                 )}
@@ -135,13 +135,13 @@ function Navbar() {
                                     onClick={() => setUserMenuOpen((v) => !v)}
                                     className="flex items-center gap-2"
                                 >
-                                    <div className="w-8 h-8 rounded-full bg-[#2B1D14] text-[#F97316] border border-[#2B1D14] text-xs font-semibold flex items-center justify-center">
+                                    <div className="w-8 h-8 rounded-full bg-[#161513] text-[#F97316] border border-[#2E2A24] text-xs font-semibold flex items-center justify-center">
                                         {initials}
                                     </div>
-                                    <span className="hidden sm:block text-sm font-medium text-[#2B1D14] whitespace-nowrap">
+                                    <span className="hidden sm:block text-sm font-medium text-[#F5F1EA] whitespace-nowrap">
                                         {user.fullName}
                                     </span>
-                                    <ChevronDown size={14} className="text-[#B8A896] hidden sm:block" />
+                                    <ChevronDown size={14} className="text-[#5C574E] hidden sm:block" />
                                 </button>
 
                                 {userMenuOpen && (
@@ -150,13 +150,13 @@ function Navbar() {
                                             className="fixed inset-0 z-10"
                                             onClick={() => setUserMenuOpen(false)}
                                         />
-                                        <div className="absolute right-0 mt-2 w-44 bg-white border border-[#E4D5C1] rounded-lg shadow-lg py-1 z-20">
-                                            <div className="px-3 py-2 border-b border-[#F0E6D6] sm:hidden">
-                                                <p className="text-sm font-medium text-[#2B1D14]">{user.fullName}</p>
+                                        <div className="absolute right-0 mt-2 w-44 bg-[#1C1A17] border border-[#2E2A24] rounded-lg shadow-lg shadow-black/40 py-1 z-20">
+                                            <div className="px-3 py-2 border-b border-[#2E2A24] sm:hidden">
+                                                <p className="text-sm font-medium text-[#F5F1EA]">{user.fullName}</p>
                                             </div>
                                             <button
                                                 onClick={handleLogout}
-                                                className="w-full text-left px-3 py-2 text-sm text-[#7A6A5A] hover:bg-[#F6EEE2] flex items-center gap-2"
+                                                className="w-full text-left px-3 py-2 text-sm text-[#8C857A] hover:bg-[#242019] hover:text-[#F5F1EA] flex items-center gap-2"
                                             >
                                                 <LogOut size={14} />
                                                 Logout
@@ -167,12 +167,12 @@ function Navbar() {
                             </div>
                         ) : (
                             <div className="flex items-center gap-3">
-                                <NavLink to="/login" className="text-sm font-medium text-[#7A6A5A] hover:text-[#2B1D14] whitespace-nowrap">
+                                <NavLink to="/login" className="text-sm font-medium text-[#8C857A] hover:text-[#F5F1EA] whitespace-nowrap">
                                     Login
                                 </NavLink>
                                 <NavLink
                                     to="/register"
-                                    className="text-sm font-medium bg-[#F97316] hover:bg-[#EA580C] border border-[#C2410C] text-white px-4 py-2 rounded-lg transition-colors whitespace-nowrap"
+                                    className="text-sm font-semibold bg-[#F97316] hover:bg-[#EA580C] text-[#161513] px-4 py-2 rounded-lg transition-colors whitespace-nowrap"
                                 >
                                     Register
                                 </NavLink>

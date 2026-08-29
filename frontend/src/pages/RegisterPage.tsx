@@ -37,57 +37,65 @@ function RegisterPage() {
     }
 
     return (
-        <div className="min-h-screen grid md:grid-cols-2 bg-[#F6EEE2]">
-            <div
-                className="hidden md:flex flex-col justify-between relative overflow-hidden bg-[#2B1D14] px-12 py-14"
-                style={{
-                    backgroundImage:
-                        'repeating-linear-gradient(45deg, rgba(255,255,255,0.025) 0px, rgba(255,255,255,0.025) 1px, transparent 1px, transparent 12px)',
-                }}
-            >
-                <div className="flex items-center gap-2 text-[#F6EEE2]">
-                    <ShoppingBag className="w-5 h-5 text-[#B5502E]" strokeWidth={2} />
+        <div className="min-h-screen grid md:grid-cols-2 bg-[#161513]">
+            <div className="hidden md:flex flex-col justify-between relative overflow-hidden bg-[#1C1A17] px-12 py-14">
+                <div
+                    className="pointer-events-none absolute -top-32 -left-24 w-96 h-96 rounded-full blur-3xl"
+                    style={{ background: 'radial-gradient(circle, rgba(249,115,22,0.18) 0%, rgba(249,115,22,0) 70%)' }}
+                />
+                <ShoppingBag
+                    className="pointer-events-none absolute -bottom-16 -right-16 w-72 h-72 text-[#F97316]/[0.04] rotate-[-12deg]"
+                    strokeWidth={1}
+                />
+
+                <div className="relative flex items-center gap-2 text-[#F5F1EA]">
+                    <ShoppingBag className="w-5 h-5 text-[#F97316]" strokeWidth={2} />
                     <span className="font-semibold tracking-wide text-sm uppercase">
                         Store
                     </span>
                 </div>
 
-                <div className="border-t border-dashed border-[#6B5645]/50 pt-8 max-w-sm">
-                    <h2
-                        className="text-3xl leading-tight text-[#F6EEE2] mb-4"
-                        style={{ fontFamily: "'Fraunces', serif", fontWeight: 600 }}
-                    >
+                <div className="relative border-t border-[#2E2A24] pt-8 max-w-sm">
+                    <span className="block text-[#F97316] text-xs font-semibold uppercase tracking-widest mb-3">
+                        New here
+                    </span>
+                    <h2 className="text-3xl font-bold leading-tight text-[#F5F1EA] mb-4">
                         Join a store built on good taste.
                     </h2>
-                    <p className="text-[#C9BBA8] text-sm leading-relaxed">
+                    <p className="text-[#8C857A] text-sm leading-relaxed">
                         Create an account to save your cart, track orders, and check out faster next time.
                     </p>
                 </div>
 
-                <p className="text-[#6B5645] text-xs">
+                <p className="relative text-[#5C574E] text-xs">
                     © {new Date().getFullYear()} Store. All rights reserved.
                 </p>
             </div>
 
             <div className="flex items-center justify-center px-6 py-16">
                 <div className="w-full max-w-sm">
-                    <div className="relative bg-[#FFFDF9] border border-[#E4D5C1] rounded-2xl shadow-[0_8px_30px_-12px_rgba(43,29,20,0.25)] px-8 pt-12 pb-8">
-                        <div className="absolute -top-6 left-8 w-12 h-12 rounded-full bg-[#B5502E] border-4 border-[#F6EEE2] shadow-md flex items-center justify-center rotate-[-8deg]">
-                            <ShoppingBag className="w-5 h-5 text-[#FFFDF9]" strokeWidth={2} />
+                    <div
+                        className="relative bg-[#1C1A17] border border-[#2E2A24] px-8 pt-12 pb-8"
+                        style={{
+                            clipPath: 'polygon(0 0, calc(100% - 28px) 0, 100% 28px, 100% 100%, 0 100%)',
+                            boxShadow: '0 30px 60px -20px rgba(0,0,0,0.55), 0 0 80px -30px rgba(249,115,22,0.15)',
+                        }}
+                    >
+                        <div className="absolute top-0 right-0 w-7 h-7 bg-[#F97316]" style={{ clipPath: 'polygon(100% 0, 0 0, 100% 100%)' }} />
+
+                        <div className="absolute -top-6 left-8 w-12 h-12 bg-[#F97316] border-4 border-[#161513] shadow-lg shadow-[#F97316]/20 flex items-center justify-center">
+                            <ShoppingBag className="w-5 h-5 text-[#161513]" strokeWidth={2} />
                         </div>
 
-                        <h1
-                            className="text-2xl text-[#2B1D14] mb-1"
-                            style={{ fontFamily: "'Fraunces', serif", fontWeight: 600 }}
-                        >
+                        <h1 className="text-2xl font-bold text-[#F5F1EA] mb-1">
                             Create your account
                         </h1>
-                        <p className="text-[#7A6A5A] text-sm mb-6">
+                        <p className="text-[#8C857A] text-sm mb-6">
                             Takes less than a minute
                         </p>
 
                         {errors.length > 0 && (
-                            <div className="flex gap-2 bg-[#B5502E]/10 border border-[#B5502E]/30 text-[#9C4325] text-sm rounded-lg px-3 py-2 mb-5">
+                            <div className="flex gap-2 bg-red-500/10 border border-red-500/30 text-red-400 text-sm px-3 py-2 mb-5">
                                 <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                                 <ul className="space-y-1">
                                     {errors.map((msg, i) => (
@@ -101,7 +109,7 @@ function RegisterPage() {
                             <div>
                                 <label
                                     htmlFor="fullName"
-                                    className="block text-xs font-medium text-[#7A6A5A] mb-1.5 uppercase tracking-wide"
+                                    className="block text-xs font-medium text-[#8C857A] mb-1.5 uppercase tracking-wide"
                                 >
                                     Full Name
                                 </label>
@@ -111,7 +119,7 @@ function RegisterPage() {
                                     placeholder="Jane Doe"
                                     value={fullName}
                                     onChange={(e) => setFullName(e.target.value)}
-                                    className="w-full border border-[#E4D5C1] rounded-lg px-3 py-2.5 text-[#2B1D14] placeholder-[#B8A896] bg-white focus:outline-none focus:ring-2 focus:ring-[#B5502E] focus:border-transparent transition"
+                                    className="w-full border border-[#2E2A24] px-3 py-2.5 text-[#F5F1EA] placeholder-[#5C574E] bg-[#161513] focus:outline-none focus:ring-1 focus:ring-[#F97316] focus:border-[#F97316] transition"
                                     required
                                 />
                             </div>
@@ -119,7 +127,7 @@ function RegisterPage() {
                             <div>
                                 <label
                                     htmlFor="email"
-                                    className="block text-xs font-medium text-[#7A6A5A] mb-1.5 uppercase tracking-wide"
+                                    className="block text-xs font-medium text-[#8C857A] mb-1.5 uppercase tracking-wide"
                                 >
                                     Email
                                 </label>
@@ -129,7 +137,7 @@ function RegisterPage() {
                                     placeholder="you@example.com"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full border border-[#E4D5C1] rounded-lg px-3 py-2.5 text-[#2B1D14] placeholder-[#B8A896] bg-white focus:outline-none focus:ring-2 focus:ring-[#B5502E] focus:border-transparent transition"
+                                    className="w-full border border-[#2E2A24] px-3 py-2.5 text-[#F5F1EA] placeholder-[#5C574E] bg-[#161513] focus:outline-none focus:ring-1 focus:ring-[#F97316] focus:border-[#F97316] transition"
                                     required
                                 />
                             </div>
@@ -137,7 +145,7 @@ function RegisterPage() {
                             <div>
                                 <label
                                     htmlFor="password"
-                                    className="block text-xs font-medium text-[#7A6A5A] mb-1.5 uppercase tracking-wide"
+                                    className="block text-xs font-medium text-[#8C857A] mb-1.5 uppercase tracking-wide"
                                 >
                                     Password
                                 </label>
@@ -148,13 +156,13 @@ function RegisterPage() {
                                         placeholder="••••••••"
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
-                                        className="w-full border border-[#E4D5C1] rounded-lg px-3 py-2.5 pr-10 text-[#2B1D14] placeholder-[#B8A896] bg-white focus:outline-none focus:ring-2 focus:ring-[#B5502E] focus:border-transparent transition"
+                                        className="w-full border border-[#2E2A24] px-3 py-2.5 pr-10 text-[#F5F1EA] placeholder-[#5C574E] bg-[#161513] focus:outline-none focus:ring-1 focus:ring-[#F97316] focus:border-[#F97316] transition"
                                         required
                                     />
                                     <button
                                         type="button"
                                         onClick={() => setShowPassword((v) => !v)}
-                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#B8A896] hover:text-[#7A6A5A] transition"
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5C574E] hover:text-[#8C857A] transition"
                                         tabIndex={-1}
                                         aria-label={showPassword ? 'Hide password' : 'Show password'}
                                     >
@@ -170,7 +178,7 @@ function RegisterPage() {
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full bg-[#B5502E] hover:bg-[#9C4325] disabled:opacity-60 disabled:cursor-not-allowed text-white font-medium py-2.5 rounded-lg transition flex items-center justify-center gap-2 mt-2"
+                                className="w-full bg-[#F97316] hover:bg-[#EA580C] disabled:opacity-60 disabled:cursor-not-allowed text-[#161513] font-semibold py-2.5 transition flex items-center justify-center gap-2 mt-2"
                             >
                                 {loading ? (
                                     <>
@@ -183,9 +191,9 @@ function RegisterPage() {
                             </button>
                         </form>
 
-                        <p className="text-center text-sm text-[#7A6A5A] mt-6">
+                        <p className="text-center text-sm text-[#8C857A] mt-6">
                             Already have an account?{' '}
-                            <Link to="/login" className="text-[#B5502E] font-medium hover:text-[#9C4325] transition">
+                            <Link to="/login" className="text-[#F97316] font-medium hover:text-[#FB923C] transition">
                                 Sign in
                             </Link>
                         </p>
