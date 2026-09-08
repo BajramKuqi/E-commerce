@@ -34,17 +34,27 @@ function clampToMax(value: string, max: number) {
     return value
 }
 
-function stockLabelClass(stock: number) {
-    if (stock === 0) return 'text-red-400 font-semibold'
-    if (stock <= 5) return 'text-[#FB923C] font-semibold'
-    if (stock <= 20) return 'text-sky-400 font-semibold'
-    return 'text-emerald-400 font-semibold'
+function stockBadge(stock: number) {
+    if (stock === 0) {
+        return { label: 'Out of stock', dot: 'bg-[#B5402E]', bg: 'bg-[#B5402E]/10', text: 'text-[#8F2F21]' }
+    }
+    if (stock <= 5) {
+        return { label: `Only ${stock} left`, dot: 'bg-[#C97A2B]', bg: 'bg-[#C97A2B]/10', text: 'text-[#8A551B]' }
+    }
+    if (stock <= 20) {
+        return { label: `${stock} in stock`, dot: 'bg-[#1F5C50]', bg: 'bg-[#1F5C50]/10', text: 'text-[#1F5C50]' }
+    }
+    return { label: `${stock} in stock`, dot: 'bg-[#3F7D5C]', bg: 'bg-[#3F7D5C]/10', text: 'text-[#2E5C44]' }
 }
 
-function stockLabelText(stock: number) {
-    if (stock === 0) return 'Out of stock'
-    if (stock <= 5) return `Only ${stock} left`
-    return `${stock} in stock`
+function StockPill({ stock }: { stock: number }) {
+    const b = stockBadge(stock)
+    return (
+        <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${b.bg} ${b.text}`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${b.dot}`} />
+            {b.label}
+        </span>
+    )
 }
 
 const PRICE_CEILING = 500
@@ -168,7 +178,7 @@ function ProductsPage() {
 
         try {
             await api.post('/Cart/items', { productId, quantity })
-            setMessage('Added to cart!')
+            setMessage('Added to cart')
             refreshCart()
             setQuantityValue(productId, '1')
         } catch (err) {
@@ -218,14 +228,17 @@ function ProductsPage() {
 
     const selectedCategoryName =
         selectedCategoryId === null
-            ? 'All Categories'
-            : categories.find((c) => c.id === selectedCategoryId)?.name ?? 'All Categories'
+            ? 'All categories'
+            : categories.find((c) => c.id === selectedCategoryId)?.name ?? 'All categories'
 
-    if (error) return <p className="p-8 text-red-400 bg-[#161513] min-h-screen">{error}</p>
+    if (error) return <p className="p-8 text-[#B5402E] bg-[#F6F1E7] min-h-screen font-medium">{error}</p>
 
     return (
-        <div className="min-h-screen bg-[#161513]">
+        <div className="min-h-screen bg-[#F6F1E7]" style={{ fontFamily: "'Inter', sans-serif" }}>
             <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+                .heading-font { font-family: 'Space Grotesk', sans-serif; }
+
                 .dual-range { position: relative; height: 20px; }
                 .dual-range input[type='range'] {
                     position: absolute;
@@ -243,9 +256,9 @@ function ProductsPage() {
                     width: 16px;
                     height: 16px;
                     border-radius: 9999px;
-                    background: #F97316;
-                    border: 2px solid #161513;
-                    box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+                    background: #1F5C50;
+                    border: 2px solid #F6F1E7;
+                    box-shadow: 0 1px 3px rgba(38,32,25,0.3);
                     cursor: pointer;
                     margin-top: -6px;
                 }
@@ -254,43 +267,44 @@ function ProductsPage() {
                     width: 16px;
                     height: 16px;
                     border-radius: 9999px;
-                    background: #F97316;
-                    border: 2px solid #161513;
-                    box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+                    background: #1F5C50;
+                    border: 2px solid #F6F1E7;
+                    box-shadow: 0 1px 3px rgba(38,32,25,0.3);
                     cursor: pointer;
                 }
                 .dual-range input[type='range']::-webkit-slider-runnable-track {
                     height: 4px;
-                    background: #2E2A24;
+                    background: #E6DCC8;
+                    border-radius: 2px;
                 }
                 .scrollbar-hide::-webkit-scrollbar { display: none; }
                 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
             `}</style>
 
             <div className="flex">
-                <aside className="hidden lg:flex flex-col w-72 shrink-0 border-r border-[#2E2A24] bg-[#1C1A17] p-6 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto">
+                <aside className="hidden lg:flex flex-col w-72 shrink-0 border-r border-[#E6DCC8] bg-white p-6 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto">
                     <div className="relative mb-6">
-                        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5C574E]" />
+                        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A79B85]" />
                         <input
                             type="text"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             placeholder="Search products..."
-                            className="w-full pl-9 pr-3 py-2 text-sm border border-[#2E2A24] rounded-md bg-[#161513] text-[#F5F1EA] placeholder-[#5C574E] focus:outline-none focus:ring-1 focus:ring-[#F97316] focus:border-[#F97316]"
+                            className="w-full pl-9 pr-3 py-2 text-sm border border-[#E6DCC8] rounded-xl bg-[#FBF8F2] text-[#262019] placeholder-[#A79B85] focus:outline-none focus:ring-2 focus:ring-[#1F5C50]/30 focus:border-[#1F5C50]"
                         />
                     </div>
 
                     <div className="mb-8">
-                        <h3 className="text-xs font-semibold text-[#5C574E] uppercase tracking-wide mb-3">
+                        <h3 className="text-sm font-semibold text-[#262019] mb-3 heading-font">
                             Categories
                         </h3>
 
                         <button
                             onClick={() => setCategoryDropdownOpen((v) => !v)}
-                            className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
+                            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium border transition-colors ${
                                 categoryDropdownOpen
-                                    ? 'bg-[#F97316]/10 text-[#F97316] border-[#F97316]/40'
-                                    : 'text-[#F5F1EA] border-[#2E2A24] hover:bg-[#242019]'
+                                    ? 'bg-[#1F5C50]/10 text-[#1F5C50] border-[#1F5C50]/40'
+                                    : 'text-[#262019] border-[#E6DCC8] hover:bg-[#FBF8F2]'
                             }`}
                         >
                             <span>{selectedCategoryName}</span>
@@ -301,25 +315,25 @@ function ProductsPage() {
                         </button>
 
                         {categoryDropdownOpen && (
-                            <div className="flex flex-col gap-1 mt-2 border border-[#2E2A24] rounded-lg p-2 bg-[#161513]">
+                            <div className="flex flex-col gap-1 mt-2 border border-[#E6DCC8] rounded-xl p-2 bg-[#FBF8F2]">
                                 <button
                                     onClick={() => selectCategory(null)}
-                                    className={`text-left px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
+                                    className={`text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                                         selectedCategoryId === null
-                                            ? 'bg-[#F97316]/10 text-[#F97316] border-[#F97316]/40'
-                                            : 'text-[#8C857A] border-transparent hover:bg-[#242019]'
+                                            ? 'bg-[#1F5C50]/10 text-[#1F5C50]'
+                                            : 'text-[#756B5A] hover:bg-white'
                                     }`}
                                 >
-                                    All Categories
+                                    All categories
                                 </button>
                                 {categories.map((category) => (
                                     <button
                                         key={category.id}
                                         onClick={() => selectCategory(category.id)}
-                                        className={`text-left px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
+                                        className={`text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                                             selectedCategoryId === category.id
-                                                ? 'bg-[#F97316]/10 text-[#F97316] border-[#F97316]/40'
-                                                : 'text-[#8C857A] border-transparent hover:bg-[#242019]'
+                                                ? 'bg-[#1F5C50]/10 text-[#1F5C50]'
+                                                : 'text-[#756B5A] hover:bg-white'
                                         }`}
                                     >
                                         {category.name}
@@ -330,8 +344,8 @@ function ProductsPage() {
                     </div>
 
                     <div className="mb-8">
-                        <h3 className="text-xs font-semibold text-[#5C574E] uppercase tracking-wide mb-3">
-                            Price Range
+                        <h3 className="text-sm font-semibold text-[#262019] mb-3 heading-font">
+                            Price range
                         </h3>
                         <div className="flex items-center gap-2 mb-4">
                             <input
@@ -340,16 +354,16 @@ function ProductsPage() {
                                 placeholder="Min"
                                 value={minPrice}
                                 onChange={(e) => setMinPrice(sanitizeDigits(e.target.value))}
-                                className="w-1/2 px-2 py-1.5 text-sm border border-[#2E2A24] rounded-md bg-[#161513] text-[#F5F1EA] font-semibold placeholder-[#5C574E] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
+                                className="w-1/2 px-2 py-1.5 text-sm border border-[#E6DCC8] rounded-lg bg-[#FBF8F2] text-[#262019] font-semibold placeholder-[#A79B85] focus:outline-none focus:ring-2 focus:ring-[#1F5C50]/30"
                             />
-                            <span className="text-[#F5F1EA] font-semibold">-</span>
+                            <span className="text-[#A79B85] font-semibold">–</span>
                             <input
                                 type="text"
                                 inputMode="numeric"
                                 placeholder="Max"
                                 value={maxPrice}
                                 onChange={(e) => setMaxPrice(sanitizeDigits(e.target.value))}
-                                className="w-1/2 px-2 py-1.5 text-sm border border-[#2E2A24] rounded-md bg-[#161513] text-[#F5F1EA] font-semibold placeholder-[#5C574E] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
+                                className="w-1/2 px-2 py-1.5 text-sm border border-[#E6DCC8] rounded-lg bg-[#FBF8F2] text-[#262019] font-semibold placeholder-[#A79B85] focus:outline-none focus:ring-2 focus:ring-[#1F5C50]/30"
                             />
                         </div>
                         <div className="dual-range">
@@ -374,7 +388,7 @@ function ProductsPage() {
                                 }}
                             />
                         </div>
-                        <div className="flex justify-between text-xs text-[#5C574E] mt-2">
+                        <div className="flex justify-between text-xs text-[#A79B85] mt-2">
                             <span>$0</span>
                             <span>${PRICE_CEILING}+</span>
                         </div>
@@ -382,49 +396,46 @@ function ProductsPage() {
 
                     <button
                         onClick={clearFilters}
-                        className="mt-auto text-sm font-bold text-[#F5F1EA] border-2 border-[#2E2A24] rounded-lg py-2 hover:bg-[#242019] hover:border-[#F97316]/40 transition-colors"
+                        className="mt-auto text-sm font-semibold text-[#262019] border border-[#E6DCC8] rounded-xl py-2.5 hover:bg-[#FBF8F2] hover:border-[#1F5C50]/40 transition-colors"
                     >
-                        Clear Filters
+                        Clear filters
                     </button>
                 </aside>
 
-                <main className="flex-1 p-6 lg:p-8 bg-[#161513]">
+                <main className="flex-1 p-6 lg:p-8 bg-[#F6F1E7]">
                     <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
                         <div>
-                            <span className="block text-[#F97316] text-xs font-semibold uppercase tracking-widest mb-1">
-                                Catalog
-                            </span>
-                            <h1 className="text-2xl font-bold text-[#F5F1EA]">
-                                Products
+                            <h1 className="text-3xl font-bold text-[#262019] heading-font">
+                                Shop the collection
                             </h1>
-                            <p className="text-sm text-[#8C857A] mt-1">Browse our full collection.</p>
+                            <p className="text-sm text-[#756B5A] mt-1">Browse everything we've got in stock.</p>
                         </div>
 
                         <div className="flex items-center gap-3">
                             <div className="flex items-center gap-2">
-                                <SlidersHorizontal size={14} className="text-[#8C857A]" />
+                                <SlidersHorizontal size={14} className="text-[#756B5A]" />
                                 <select
                                     value={sortOption}
                                     onChange={(e) => setSortOption(e.target.value as SortOption)}
-                                    className="text-sm border border-[#2E2A24] rounded-md px-3 py-2 bg-[#1C1A17] text-[#F5F1EA] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
+                                    className="text-sm border border-[#E6DCC8] rounded-lg px-3 py-2 bg-white text-[#262019] focus:outline-none focus:ring-2 focus:ring-[#1F5C50]/30"
                                 >
-                                    <option value="newest">Sort by: Newest</option>
-                                    <option value="price-asc">Price: Low to High</option>
-                                    <option value="price-desc">Price: High to Low</option>
+                                    <option value="newest">Newest first</option>
+                                    <option value="price-asc">Price: low to high</option>
+                                    <option value="price-desc">Price: high to low</option>
                                     <option value="name-asc">Name: A to Z</option>
                                 </select>
                             </div>
 
-                            <div className="flex items-center border border-[#2E2A24] rounded-lg overflow-hidden">
+                            <div className="flex items-center border border-[#E6DCC8] rounded-lg overflow-hidden bg-white">
                                 <button
                                     onClick={() => setViewMode('grid')}
-                                    className={`p-2 ${viewMode === 'grid' ? 'bg-[#F97316] text-[#161513]' : 'bg-[#1C1A17] text-[#8C857A] hover:bg-[#242019]'}`}
+                                    className={`p-2 ${viewMode === 'grid' ? 'bg-[#1F5C50] text-white' : 'text-[#756B5A] hover:bg-[#FBF8F2]'}`}
                                 >
                                     <LayoutGrid size={16} />
                                 </button>
                                 <button
                                     onClick={() => setViewMode('list')}
-                                    className={`p-2 ${viewMode === 'list' ? 'bg-[#F97316] text-[#161513]' : 'bg-[#1C1A17] text-[#8C857A] hover:bg-[#242019]'}`}
+                                    className={`p-2 ${viewMode === 'list' ? 'bg-[#1F5C50] text-white' : 'text-[#756B5A] hover:bg-[#FBF8F2]'}`}
                                 >
                                     <List size={16} />
                                 </button>
@@ -435,21 +446,21 @@ function ProductsPage() {
                     <div className="lg:hidden mb-4 flex flex-col gap-3">
                         <div className="flex items-center gap-2">
                             <div className="relative flex-1">
-                                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5C574E]" />
+                                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A79B85]" />
                                 <input
                                     type="text"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                     placeholder="Search products..."
-                                    className="w-full pl-9 pr-3 py-2 text-sm border border-[#2E2A24] rounded-md bg-[#1C1A17] text-[#F5F1EA] placeholder-[#5C574E] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
+                                    className="w-full pl-9 pr-3 py-2 text-sm border border-[#E6DCC8] rounded-xl bg-white text-[#262019] placeholder-[#A79B85] focus:outline-none focus:ring-2 focus:ring-[#1F5C50]/30"
                                 />
                             </div>
                             <button
                                 onClick={() => setMobileFiltersOpen((v) => !v)}
-                                className={`shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium border ${
+                                className={`shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium border ${
                                     mobileFiltersOpen
-                                        ? 'bg-[#F97316] text-[#161513] border-[#F97316]'
-                                        : 'bg-[#1C1A17] text-[#8C857A] border-[#2E2A24]'
+                                        ? 'bg-[#1F5C50] text-white border-[#1F5C50]'
+                                        : 'bg-white text-[#756B5A] border-[#E6DCC8]'
                                 }`}
                             >
                                 <SlidersHorizontal size={14} />
@@ -462,8 +473,8 @@ function ProductsPage() {
                                 onClick={() => selectCategory(null)}
                                 className={`shrink-0 px-4 py-1.5 rounded-full text-sm font-medium border transition-colors ${
                                     selectedCategoryId === null
-                                        ? 'bg-[#F97316] text-[#161513] border-[#F97316]'
-                                        : 'bg-[#1C1A17] border-[#2E2A24] text-[#8C857A]'
+                                        ? 'bg-[#1F5C50] text-white border-[#1F5C50]'
+                                        : 'bg-white border-[#E6DCC8] text-[#756B5A]'
                                 }`}
                             >
                                 All
@@ -474,8 +485,8 @@ function ProductsPage() {
                                     onClick={() => selectCategory(category.id)}
                                     className={`shrink-0 px-4 py-1.5 rounded-full text-sm font-medium border transition-colors ${
                                         selectedCategoryId === category.id
-                                            ? 'bg-[#F97316] text-[#161513] border-[#F97316]'
-                                            : 'bg-[#1C1A17] border-[#2E2A24] text-[#8C857A]'
+                                            ? 'bg-[#1F5C50] text-white border-[#1F5C50]'
+                                            : 'bg-white border-[#E6DCC8] text-[#756B5A]'
                                     }`}
                                 >
                                     {category.name}
@@ -484,9 +495,9 @@ function ProductsPage() {
                         </div>
 
                         {mobileFiltersOpen && (
-                            <div className="bg-[#1C1A17] border border-[#2E2A24] rounded-lg p-4">
-                                <h3 className="text-xs font-semibold text-[#5C574E] uppercase tracking-wide mb-3">
-                                    Price Range
+                            <div className="bg-white border border-[#E6DCC8] rounded-xl p-4">
+                                <h3 className="text-sm font-semibold text-[#262019] mb-3 heading-font">
+                                    Price range
                                 </h3>
                                 <div className="flex items-center gap-2 mb-4">
                                     <input
@@ -495,16 +506,16 @@ function ProductsPage() {
                                         placeholder="Min"
                                         value={minPrice}
                                         onChange={(e) => setMinPrice(sanitizeDigits(e.target.value))}
-                                        className="w-1/2 px-2 py-1.5 text-sm border border-[#2E2A24] rounded-md bg-[#161513] text-[#F5F1EA] font-semibold placeholder-[#5C574E] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
+                                        className="w-1/2 px-2 py-1.5 text-sm border border-[#E6DCC8] rounded-lg bg-[#FBF8F2] text-[#262019] font-semibold placeholder-[#A79B85] focus:outline-none focus:ring-2 focus:ring-[#1F5C50]/30"
                                     />
-                                    <span className="text-[#F5F1EA] font-semibold">-</span>
+                                    <span className="text-[#A79B85] font-semibold">–</span>
                                     <input
                                         type="text"
                                         inputMode="numeric"
                                         placeholder="Max"
                                         value={maxPrice}
                                         onChange={(e) => setMaxPrice(sanitizeDigits(e.target.value))}
-                                        className="w-1/2 px-2 py-1.5 text-sm border border-[#2E2A24] rounded-md bg-[#161513] text-[#F5F1EA] font-semibold placeholder-[#5C574E] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
+                                        className="w-1/2 px-2 py-1.5 text-sm border border-[#E6DCC8] rounded-lg bg-[#FBF8F2] text-[#262019] font-semibold placeholder-[#A79B85] focus:outline-none focus:ring-2 focus:ring-[#1F5C50]/30"
                                     />
                                 </div>
                                 <div className="dual-range">
@@ -529,44 +540,43 @@ function ProductsPage() {
                                         }}
                                     />
                                 </div>
-                                <div className="flex justify-between text-xs text-[#5C574E] mt-2 mb-4">
+                                <div className="flex justify-between text-xs text-[#A79B85] mt-2 mb-4">
                                     <span>$0</span>
                                     <span>${PRICE_CEILING}+</span>
                                 </div>
                                 <button
                                     onClick={clearFilters}
-                                    className="w-full text-sm font-bold text-[#F5F1EA] border-2 border-[#2E2A24] rounded-lg py-2 hover:bg-[#242019] hover:border-[#F97316]/40 transition-colors"
+                                    className="w-full text-sm font-semibold text-[#262019] border border-[#E6DCC8] rounded-xl py-2.5 hover:bg-[#FBF8F2] hover:border-[#1F5C50]/40 transition-colors"
                                 >
-                                    Clear Filters
+                                    Clear filters
                                 </button>
                             </div>
                         )}
                     </div>
 
-                    {message && <p className="mb-4 text-emerald-400 font-medium text-sm">{message}</p>}
+                    {message && (
+                        <p className="mb-4 text-[#1F5C50] font-medium text-sm bg-[#1F5C50]/10 rounded-lg px-3 py-2 inline-block">
+                            {message}
+                        </p>
+                    )}
 
                     {loading ? (
-                        <p className="text-[#8C857A] text-sm">Loading products...</p>
+                        <p className="text-[#756B5A] text-sm">Loading products...</p>
                     ) : visibleProducts.length === 0 ? (
-                        <p className="text-[#8C857A] text-sm">No products match your filters.</p>
+                        <p className="text-[#756B5A] text-sm">No products match your filters. Try widening your price range or search term.</p>
                     ) : viewMode === 'grid' ? (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
                             {visibleProducts.map((product) => {
                                 const stock = availableStock(product)
                                 const showImage = product.imageUrl && !brokenImageIds.has(product.id)
                                 return (
                                     <div
                                         key={product.id}
-                                        className="relative bg-[#1C1A17] border border-[#2E2A24] overflow-hidden flex flex-col hover:border-[#F97316]/60 hover:-translate-y-0.5 transition-all"
-                                        style={{
-                                            clipPath: 'polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%)',
-                                            boxShadow: '0 12px 30px -14px rgba(0,0,0,0.6)',
-                                        }}
+                                        className="bg-white border border-[#E6DCC8] rounded-2xl overflow-hidden flex flex-col hover:border-[#1F5C50]/40 hover:-translate-y-1 hover:shadow-lg transition-all duration-200"
+                                        style={{ boxShadow: '0 6px 16px -10px rgba(38,32,25,0.25)' }}
                                     >
-                                        <div className="absolute top-0 right-0 w-4 h-4 bg-[#F97316]/70" style={{ clipPath: 'polygon(100% 0, 0 0, 100% 100%)' }} />
-
                                         <div
-                                            className="h-36 bg-[#161513] border-b border-[#2E2A24] p-1 flex items-center justify-center overflow-hidden cursor-pointer"
+                                            className="h-36 bg-[#FBF8F2] border-b border-[#E6DCC8] p-2 flex items-center justify-center overflow-hidden cursor-pointer"
                                             onClick={() => setSelectedProduct(product)}
                                         >
                                             {showImage ? (
@@ -577,14 +587,16 @@ function ProductsPage() {
                                                     onError={() => markImageBroken(product.id)}
                                                 />
                                             ) : (
-                                                <Package className="text-[#3A352C]" size={40} />
+                                                <Package className="text-[#D8CBAE]" size={40} />
                                             )}
                                         </div>
 
                                         <div className="p-4 flex flex-col flex-1">
-                                            <p className="font-semibold text-[#F5F1EA] line-clamp-1">{product.name}</p>
-                                            <p className="text-lg font-bold text-[#F97316] mt-1">${product.price}</p>
-                                            <p className={`text-xs mt-1 ${stockLabelClass(stock)}`}>{stockLabelText(stock)}</p>
+                                            <p className="font-semibold text-[#262019] line-clamp-1">{product.name}</p>
+                                            <p className="text-lg font-bold text-[#B5402E] mt-1 heading-font">${product.price}</p>
+                                            <div className="mt-1.5">
+                                                <StockPill stock={stock} />
+                                            </div>
 
                                             {user && (
                                                 <div className="flex items-center gap-2 mt-3">
@@ -592,7 +604,7 @@ function ProductsPage() {
                                                         type="button"
                                                         onClick={() => step(product.id, -1, stock)}
                                                         disabled={stock === 0}
-                                                        className="w-10 h-7 bg-[#161513] hover:bg-[#242019] border border-[#2E2A24] text-[#F5F1EA] rounded flex items-center justify-center disabled:opacity-40 transition-colors"
+                                                        className="w-9 h-8 bg-[#FBF8F2] hover:bg-[#F1EADA] border border-[#E6DCC8] text-[#262019] rounded-lg flex items-center justify-center disabled:opacity-40 transition-colors"
                                                     >
                                                         <Minus size={12} />
                                                     </button>
@@ -603,13 +615,13 @@ function ProductsPage() {
                                                         value={getQuantity(product.id)}
                                                         onChange={(e) => handleQuantityInput(product.id, e.target.value, stock)}
                                                         onBlur={() => handleQuantityBlur(product.id, stock)}
-                                                        className="w-full border border-[#2E2A24] rounded px-2 py-1 text-sm text-center text-[#F5F1EA] bg-[#161513] disabled:bg-[#1C1A17]"
+                                                        className="w-full border border-[#E6DCC8] rounded-lg px-2 py-1 text-sm text-center text-[#262019] bg-white disabled:bg-[#FBF8F2]"
                                                     />
                                                     <button
                                                         type="button"
                                                         onClick={() => step(product.id, 1, stock)}
                                                         disabled={stock === 0}
-                                                        className="w-10 h-7 bg-[#161513] hover:bg-[#242019] border border-[#2E2A24] text-[#F5F1EA] rounded flex items-center justify-center disabled:opacity-40 transition-colors"
+                                                        className="w-9 h-8 bg-[#FBF8F2] hover:bg-[#F1EADA] border border-[#E6DCC8] text-[#262019] rounded-lg flex items-center justify-center disabled:opacity-40 transition-colors"
                                                     >
                                                         <Plus size={12} />
                                                     </button>
@@ -619,7 +631,7 @@ function ProductsPage() {
                                             <button
                                                 onClick={() => handleAddToCart(product.id)}
                                                 disabled={!user || stock === 0}
-                                                className="mt-3 w-full bg-[#F97316] hover:bg-[#EA580C] text-[#161513] text-sm font-semibold py-2 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+                                                className="mt-3 w-full bg-[#B5402E] hover:bg-[#8F2F21] text-white text-sm font-semibold py-2.5 rounded-xl disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
                                             >
                                                 <ShoppingCart size={14} />
                                                 Add to cart
@@ -637,11 +649,11 @@ function ProductsPage() {
                                 return (
                                     <div
                                         key={product.id}
-                                        className="bg-[#1C1A17] rounded-xl border border-[#2E2A24] p-4 flex items-center gap-4 hover:border-[#F97316]/60 transition-all"
-                                        style={{ boxShadow: '0 12px 30px -14px rgba(0,0,0,0.6)' }}
+                                        className="bg-white rounded-2xl border border-[#E6DCC8] p-4 flex items-center gap-4 hover:border-[#1F5C50]/40 hover:shadow-md transition-all"
+                                        style={{ boxShadow: '0 6px 16px -10px rgba(38,32,25,0.2)' }}
                                     >
                                         <div
-                                            className="w-20 h-20 shrink-0 bg-[#161513] border border-[#2E2A24] rounded-lg flex items-center justify-center overflow-hidden cursor-pointer"
+                                            className="w-20 h-20 shrink-0 bg-[#FBF8F2] border border-[#E6DCC8] rounded-xl flex items-center justify-center overflow-hidden cursor-pointer"
                                             onClick={() => setSelectedProduct(product)}
                                         >
                                             {showImage ? (
@@ -652,19 +664,21 @@ function ProductsPage() {
                                                     onError={() => markImageBroken(product.id)}
                                                 />
                                             ) : (
-                                                <Package className="text-[#3A352C]" size={28} />
+                                                <Package className="text-[#D8CBAE]" size={28} />
                                             )}
                                         </div>
 
                                         <div className="flex-1 min-w-0">
-                                            <p className="font-semibold text-[#F5F1EA] truncate">{product.name}</p>
-                                            <span className="text-[11px] uppercase tracking-wide text-[#F97316] font-semibold">
+                                            <p className="font-semibold text-[#262019] truncate">{product.name}</p>
+                                            <span className="text-xs text-[#1F5C50] font-medium">
                                                 {product.categoryName}
                                             </span>
-                                            <p className={`text-xs mt-1 ${stockLabelClass(stock)}`}>{stockLabelText(stock)}</p>
+                                            <div className="mt-1.5">
+                                                <StockPill stock={stock} />
+                                            </div>
                                         </div>
 
-                                        <p className="text-lg font-bold text-[#F97316] shrink-0">${product.price}</p>
+                                        <p className="text-lg font-bold text-[#B5402E] shrink-0 heading-font">${product.price}</p>
 
                                         {user && (
                                             <div className="flex items-center gap-2 shrink-0">
@@ -672,7 +686,7 @@ function ProductsPage() {
                                                     type="button"
                                                     onClick={() => step(product.id, -1, stock)}
                                                     disabled={stock === 0}
-                                                    className="w-10 h-7 bg-[#161513] hover:bg-[#242019] border border-[#2E2A24] text-[#F5F1EA] rounded flex items-center justify-center disabled:opacity-40 transition-colors"
+                                                    className="w-9 h-8 bg-[#FBF8F2] hover:bg-[#F1EADA] border border-[#E6DCC8] text-[#262019] rounded-lg flex items-center justify-center disabled:opacity-40 transition-colors"
                                                 >
                                                     <Minus size={12} />
                                                 </button>
@@ -683,13 +697,13 @@ function ProductsPage() {
                                                     value={getQuantity(product.id)}
                                                     onChange={(e) => handleQuantityInput(product.id, e.target.value, stock)}
                                                     onBlur={() => handleQuantityBlur(product.id, stock)}
-                                                    className="w-14 border border-[#2E2A24] rounded px-2 py-1 text-sm text-center text-[#F5F1EA] bg-[#161513] disabled:bg-[#1C1A17]"
+                                                    className="w-14 border border-[#E6DCC8] rounded-lg px-2 py-1 text-sm text-center text-[#262019] bg-white disabled:bg-[#FBF8F2]"
                                                 />
                                                 <button
                                                     type="button"
                                                     onClick={() => step(product.id, 1, stock)}
                                                     disabled={stock === 0}
-                                                    className="w-10 h-7 bg-[#161513] hover:bg-[#242019] border border-[#2E2A24] text-[#F5F1EA] rounded flex items-center justify-center disabled:opacity-40 transition-colors"
+                                                    className="w-9 h-8 bg-[#FBF8F2] hover:bg-[#F1EADA] border border-[#E6DCC8] text-[#262019] rounded-lg flex items-center justify-center disabled:opacity-40 transition-colors"
                                                 >
                                                     <Plus size={12} />
                                                 </button>
@@ -700,7 +714,7 @@ function ProductsPage() {
                                             <button
                                                 onClick={() => handleAddToCart(product.id)}
                                                 disabled={stock === 0}
-                                                className="bg-[#F97316] hover:bg-[#EA580C] text-[#161513] p-2 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-colors shrink-0"
+                                                className="bg-[#B5402E] hover:bg-[#8F2F21] text-white p-2.5 rounded-xl disabled:opacity-40 disabled:cursor-not-allowed transition-colors shrink-0"
                                             >
                                                 <ShoppingCart size={18} />
                                             </button>
@@ -716,18 +730,18 @@ function ProductsPage() {
                             <button
                                 disabled={page <= 1}
                                 onClick={() => setPage((p) => p - 1)}
-                                className="flex items-center gap-1 text-sm font-semibold px-4 py-2 rounded-lg border-2 border-[#2E2A24] bg-[#1C1A17] text-[#F5F1EA] hover:bg-[#F97316] hover:text-[#161513] hover:border-[#F97316] disabled:opacity-40 disabled:hover:bg-[#1C1A17] disabled:hover:text-[#F5F1EA] disabled:hover:border-[#2E2A24] transition-colors"
+                                className="flex items-center gap-1 text-sm font-semibold px-4 py-2 rounded-full border border-[#E6DCC8] bg-white text-[#262019] hover:bg-[#1F5C50] hover:text-white hover:border-[#1F5C50] disabled:opacity-40 disabled:hover:bg-white disabled:hover:text-[#262019] disabled:hover:border-[#E6DCC8] transition-colors"
                             >
                                 <ChevronLeft size={16} />
                                 Previous
                             </button>
-                            <span className="text-sm text-[#F5F1EA] font-semibold">
+                            <span className="text-sm text-[#756B5A] font-medium">
                                 Page {page} of {totalPages}
                             </span>
                             <button
                                 disabled={page >= totalPages}
                                 onClick={() => setPage((p) => p + 1)}
-                                className="flex items-center gap-1 text-sm font-semibold px-4 py-2 rounded-lg border-2 border-[#2E2A24] bg-[#1C1A17] text-[#F5F1EA] hover:bg-[#F97316] hover:text-[#161513] hover:border-[#F97316] disabled:opacity-40 disabled:hover:bg-[#1C1A17] disabled:hover:text-[#F5F1EA] disabled:hover:border-[#2E2A24] transition-colors"
+                                className="flex items-center gap-1 text-sm font-semibold px-4 py-2 rounded-full border border-[#E6DCC8] bg-white text-[#262019] hover:bg-[#1F5C50] hover:text-white hover:border-[#1F5C50] disabled:opacity-40 disabled:hover:bg-white disabled:hover:text-[#262019] disabled:hover:border-[#E6DCC8] transition-colors"
                             >
                                 Next
                                 <ChevronRight size={16} />

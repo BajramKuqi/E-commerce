@@ -6,17 +6,27 @@ import { useAuth } from '../context/AuthContext'
 import { useCart } from '../context/CartContext'
 import type { Product } from '../types/Product'
 
-function stockLabelClass(stock: number) {
-    if (stock === 0) return 'text-red-400 font-semibold'
-    if (stock <= 5) return 'text-[#FB923C] font-semibold'
-    if (stock <= 20) return 'text-sky-400 font-semibold'
-    return 'text-emerald-400 font-semibold'
+function stockBadge(stock: number) {
+    if (stock === 0) {
+        return { label: 'Out of stock', dot: 'bg-[#B5402E]', bg: 'bg-[#B5402E]/10', text: 'text-[#8F2F21]' }
+    }
+    if (stock <= 5) {
+        return { label: `Only ${stock} left`, dot: 'bg-[#C97A2B]', bg: 'bg-[#C97A2B]/10', text: 'text-[#8A551B]' }
+    }
+    if (stock <= 20) {
+        return { label: `${stock} in stock`, dot: 'bg-[#1F5C50]', bg: 'bg-[#1F5C50]/10', text: 'text-[#1F5C50]' }
+    }
+    return { label: `${stock} in stock`, dot: 'bg-[#3F7D5C]', bg: 'bg-[#3F7D5C]/10', text: 'text-[#2E5C44]' }
 }
 
-function stockLabelText(stock: number) {
-    if (stock === 0) return 'Out of stock'
-    if (stock <= 5) return `Only ${stock} left`
-    return `${stock} in stock`
+function StockPill({ stock }: { stock: number }) {
+    const b = stockBadge(stock)
+    return (
+        <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${b.bg} ${b.text}`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${b.dot}`} />
+            {b.label}
+        </span>
+    )
 }
 
 type Props = {
@@ -105,7 +115,7 @@ function ProductDetailModal({ product, onClose }: Props) {
         const qty = parseInt(quantity, 10) || 1
         try {
             await api.post('/Cart/items', { productId: product.id, quantity: qty })
-            setMessage('Added to cart!')
+            setMessage('Added to cart')
             refreshCart()
             setQuantity('1')
         } catch (err) {
@@ -126,28 +136,28 @@ function ProductDetailModal({ product, onClose }: Props) {
 
     return (
         <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#262019]/60 backdrop-blur-sm"
             onClick={onClose}
+            style={{ fontFamily: "'Inter', sans-serif" }}
         >
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600;700&display=swap');
+                .heading-font { font-family: 'Space Grotesk', sans-serif; }
+            `}</style>
             <div
-                className="relative bg-[#1C1A17] border border-[#2E2A24] w-full max-w-3xl max-h-[90vh] overflow-y-auto"
-                style={{
-                    clipPath: 'polygon(0 0, calc(100% - 28px) 0, 100% 28px, 100% 100%, 0 100%)',
-                    boxShadow: '0 30px 70px -20px rgba(0,0,0,0.7), 0 0 90px -30px rgba(249,115,22,0.12)',
-                }}
+                className="relative bg-white rounded-2xl border border-[#E6DCC8] w-full max-w-3xl max-h-[90vh] overflow-y-auto"
+                style={{ boxShadow: '0 30px 70px -20px rgba(38,32,25,0.35)' }}
                 onClick={(e) => e.stopPropagation()}
             >
-                <div className="absolute top-0 right-0 w-7 h-7 bg-[#F97316]" style={{ clipPath: 'polygon(100% 0, 0 0, 100% 100%)' }} />
-
                 <button
                     onClick={onClose}
-                    className="absolute top-4 right-4 z-10 w-9 h-9 flex items-center justify-center rounded-full bg-[#161513] border border-[#2E2A24] text-[#8C857A] hover:text-[#F97316] hover:border-[#F97316]/40 transition-colors"
+                    className="absolute top-4 right-4 z-10 w-9 h-9 flex items-center justify-center rounded-full bg-[#FBF8F2] border border-[#E6DCC8] text-[#756B5A] hover:text-[#1F5C50] hover:border-[#1F5C50]/40 transition-colors"
                 >
                     <X size={18} />
                 </button>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-0">
-                    <div className="bg-[#161513] flex flex-col p-6 sm:min-h-[420px] border-b sm:border-b-0 sm:border-r border-[#2E2A24]">
+                    <div className="bg-[#FBF8F2] flex flex-col p-6 sm:min-h-[420px] border-b sm:border-b-0 sm:border-r border-[#E6DCC8] sm:rounded-l-2xl">
                         <div className="flex-1 flex items-center justify-center">
                             {activeImage && !activeImageBroken ? (
                                 <img
@@ -159,7 +169,7 @@ function ProductDetailModal({ product, onClose }: Props) {
                                     }
                                 />
                             ) : (
-                                <Package className="text-[#3A352C]" size={80} />
+                                <Package className="text-[#D8CBAE]" size={80} />
                             )}
                         </div>
 
@@ -172,8 +182,8 @@ function ProductDetailModal({ product, onClose }: Props) {
                                         <button
                                             key={img.key}
                                             onClick={() => setSelectedIndex(index)}
-                                            className={`shrink-0 w-14 h-14 rounded-lg border-2 flex items-center justify-center overflow-hidden bg-[#1C1A17] transition-colors ${
-                                                isActive ? 'border-[#F97316]' : 'border-[#2E2A24] hover:border-[#F97316]/60'
+                                            className={`shrink-0 w-14 h-14 rounded-lg border-2 flex items-center justify-center overflow-hidden bg-white transition-colors ${
+                                                isActive ? 'border-[#1F5C50]' : 'border-[#E6DCC8] hover:border-[#1F5C50]/60'
                                             }`}
                                         >
                                             {!broken ? (
@@ -186,7 +196,7 @@ function ProductDetailModal({ product, onClose }: Props) {
                                                     }
                                                 />
                                             ) : (
-                                                <Package className="text-[#3A352C]" size={20} />
+                                                <Package className="text-[#D8CBAE]" size={20} />
                                             )}
                                         </button>
                                     )
@@ -196,17 +206,21 @@ function ProductDetailModal({ product, onClose }: Props) {
                     </div>
 
                     <div className="p-6 sm:p-8 flex flex-col">
-                        <span className="text-[11px] uppercase tracking-wide text-[#F97316] font-semibold">
+                        <span className="text-xs text-[#1F5C50] font-medium">
                             {product.categoryName}
                         </span>
-                        <h2 className="text-2xl font-bold text-[#F5F1EA] mt-1">
+                        <h2 className="text-2xl font-bold text-[#262019] mt-1 heading-font">
                             {product.name}
                         </h2>
-                        <p className="text-3xl font-bold text-[#F97316] mt-4">${product.price}</p>
-                        <p className={`text-sm mt-2 ${stockLabelClass(stock)}`}>{stockLabelText(stock)}</p>
+                        <p className="text-3xl font-bold text-[#B5402E] mt-4 heading-font">${product.price}</p>
+                        <div className="mt-3">
+                            <StockPill stock={stock} />
+                        </div>
 
                         {message && (
-                            <p className="mt-4 text-sm font-medium text-emerald-400">{message}</p>
+                            <p className="mt-4 text-sm font-medium text-[#1F5C50] bg-[#1F5C50]/10 rounded-lg px-3 py-2 inline-block w-fit">
+                                {message}
+                            </p>
                         )}
 
                         <div className="mt-auto pt-6">
@@ -217,7 +231,7 @@ function ProductDetailModal({ product, onClose }: Props) {
                                             type="button"
                                             onClick={() => step(-1)}
                                             disabled={stock === 0}
-                                            className="w-12 h-9 bg-[#161513] hover:bg-[#242019] border border-[#2E2A24] text-[#F5F1EA] rounded flex items-center justify-center disabled:opacity-40 transition-colors"
+                                            className="w-11 h-9 bg-[#FBF8F2] hover:bg-[#F1EADA] border border-[#E6DCC8] text-[#262019] rounded-lg flex items-center justify-center disabled:opacity-40 transition-colors"
                                         >
                                             <Minus size={14} />
                                         </button>
@@ -228,13 +242,13 @@ function ProductDetailModal({ product, onClose }: Props) {
                                             value={quantity}
                                             onChange={(e) => handleQuantityInput(e.target.value)}
                                             onBlur={handleQuantityBlur}
-                                            className="w-16 border border-[#2E2A24] rounded px-2 py-1.5 text-sm text-center text-[#F5F1EA] bg-[#161513] disabled:bg-[#1C1A17]"
+                                            className="w-16 border border-[#E6DCC8] rounded-lg px-2 py-1.5 text-sm text-center text-[#262019] bg-white disabled:bg-[#FBF8F2]"
                                         />
                                         <button
                                             type="button"
                                             onClick={() => step(1)}
                                             disabled={stock === 0}
-                                            className="w-12 h-9 bg-[#161513] hover:bg-[#242019] border border-[#2E2A24] text-[#F5F1EA] rounded flex items-center justify-center disabled:opacity-40 transition-colors"
+                                            className="w-11 h-9 bg-[#FBF8F2] hover:bg-[#F1EADA] border border-[#E6DCC8] text-[#262019] rounded-lg flex items-center justify-center disabled:opacity-40 transition-colors"
                                         >
                                             <Plus size={14} />
                                         </button>
@@ -243,14 +257,14 @@ function ProductDetailModal({ product, onClose }: Props) {
                                     <button
                                         onClick={handleAddToCart}
                                         disabled={stock === 0}
-                                        className="w-full bg-[#F97316] hover:bg-[#EA580C] text-[#161513] text-sm font-semibold py-3 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+                                        className="w-full bg-[#B5402E] hover:bg-[#8F2F21] text-white text-sm font-semibold py-3 rounded-xl disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
                                     >
                                         <ShoppingCart size={16} />
                                         Add to cart
                                     </button>
                                 </>
                             ) : (
-                                <p className="text-sm text-[#8C857A]">Log in to add this item to your cart.</p>
+                                <p className="text-sm text-[#756B5A]">Log in to add this item to your cart.</p>
                             )}
                         </div>
                     </div>

@@ -9,12 +9,12 @@ import {
 import type { AdminOrderDto, PagedResult } from '../types/Order'
 
 const statusColors: Record<number, string> = {
-    0: 'bg-yellow-100 text-yellow-700',
-    1: 'bg-green-100 text-green-700',
-    2: 'bg-blue-100 text-blue-700',
-    3: 'bg-indigo-100 text-indigo-700',
-    4: 'bg-gray-200 text-gray-600',
-    5: 'bg-red-100 text-red-700',
+    0: 'bg-[#C97A2B]/10 text-[#8A551B]',
+    1: 'bg-[#1F5C50]/10 text-[#1F5C50]',
+    2: 'bg-[#1F5C50]/10 text-[#1F5C50]',
+    3: 'bg-[#3F7D5C]/10 text-[#2E5C44]',
+    4: 'bg-[#E6DCC8] text-[#756B5A]',
+    5: 'bg-[#B5402E]/10 text-[#8F2F21]',
 }
 
 const statusFilterOptions = [
@@ -124,11 +124,16 @@ function AdminOrdersPage() {
 
     const totalPages = Math.max(1, Math.ceil(totalCount / pageSize))
 
-    if (error) return <p className="p-8 text-red-600">{error}</p>
+    if (error) return <p className="p-8 text-[#B5402E] bg-[#F6F1E7] min-h-screen">{error}</p>
 
     return (
-        <div className="min-h-screen bg-gray-50 p-8">
-            <h1 className="text-3xl font-bold text-gray-800 mb-6">Manage Orders</h1>
+        <div className="min-h-screen bg-[#F6F1E7] p-6 lg:p-8" style={{ fontFamily: "'Inter', sans-serif" }}>
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600;700&display=swap');
+                .heading-font { font-family: 'Space Grotesk', sans-serif; }
+            `}</style>
+
+            <h1 className="text-2xl font-bold text-[#262019] mb-6 heading-font">Manage orders</h1>
 
             <div className="flex flex-wrap gap-3 mb-4">
                 <select
@@ -137,7 +142,7 @@ function AdminOrdersPage() {
                         setPage(1)
                         setStatusFilter(e.target.value)
                     }}
-                    className="border rounded px-3 py-2 text-sm bg-white"
+                    className="border border-[#E6DCC8] rounded-xl px-3 py-2 text-sm bg-white text-[#262019] focus:outline-none focus:ring-2 focus:ring-[#1F5C50]/30"
                 >
                     {statusFilterOptions.map((option) => (
                         <option key={option.label} value={option.value}>
@@ -153,18 +158,20 @@ function AdminOrdersPage() {
                         setPage(1)
                         setEmailFilter(e.target.value)
                     }}
-                    className="border rounded px-3 py-2 text-sm w-64"
+                    className="border border-[#E6DCC8] rounded-xl px-3 py-2 text-sm w-64 bg-white text-[#262019] placeholder-[#A79B85] focus:outline-none focus:ring-2 focus:ring-[#1F5C50]/30"
                 />
             </div>
 
-            {actionError && <p className="mb-4 text-red-600 text-sm">{actionError}</p>}
+            {actionError && (
+                <p className="mb-4 text-sm text-[#8F2F21] bg-[#B5402E]/10 rounded-lg px-3 py-2 inline-block">{actionError}</p>
+            )}
 
             {loading ? (
-                <p className="text-gray-500 text-sm">Loading orders...</p>
+                <p className="text-[#756B5A] text-sm">Loading orders...</p>
             ) : orders.length === 0 ? (
-                <p className="text-gray-500 text-sm">No orders match this filter.</p>
+                <p className="text-[#756B5A] text-sm">No orders match this filter.</p>
             ) : (
-                <div className="space-y-4">
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
                     {orders.map((order) => {
                         const nextStatuses: OrderStatus[] = validTransitions[order.status]
                         const isRefundable = refundableStatuses.includes(order.status)
@@ -174,38 +181,39 @@ function AdminOrdersPage() {
                         return (
                             <div
                                 key={order.id}
-                                className="bg-white rounded-xl shadow-sm border border-gray-100 p-5"
+                                className="bg-white rounded-2xl border border-[#E6DCC8] p-5 flex flex-col"
+                                style={{ boxShadow: '0 6px 16px -10px rgba(38,32,25,0.15)' }}
                             >
                                 <div className="flex items-center justify-between mb-2">
-                                    <p className="font-semibold text-gray-800">Order #{order.id}</p>
-                                    <span className={`text-xs font-semibold px-3 py-1 rounded-full ${statusColors[order.status]}`}>
+                                    <p className="font-semibold text-[#262019]">Order #{order.id}</p>
+                                    <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${statusColors[order.status]}`}>
                                         {orderStatusLabels[order.status]}
                                     </span>
                                 </div>
 
-                                <p className="text-xs text-gray-400 mb-3">
-                                    {order.userFullName} &middot; {order.userEmail} &middot; {new Date(order.createdAt).toLocaleString()}
+                                <p className="text-xs text-[#A79B85] mb-3">
+                                    {order.userFullName} · {order.userEmail} · {new Date(order.createdAt).toLocaleString()}
                                 </p>
 
-                                <ul className="text-sm text-gray-600 space-y-1 mb-3">
+                                <ul className="text-sm text-[#756B5A] space-y-1 mb-3 flex-1">
                                     {order.items.map((item) => (
                                         <li key={item.productId} className="flex justify-between">
-                                            <span>{item.productName} &times; {item.quantity}</span>
+                                            <span>{item.productName} × {item.quantity}</span>
                                             <span>${(item.unitPrice * item.quantity).toFixed(2)}</span>
                                         </li>
                                     ))}
                                 </ul>
 
-                                <div className="flex items-center justify-between">
-                                    <p className="font-bold text-gray-900">${order.totalPrice.toFixed(2)}</p>
+                                <div className="flex items-center justify-between flex-wrap gap-3 pt-3 border-t border-[#E6DCC8]">
+                                    <p className="font-bold text-[#B5402E] heading-font">${order.totalPrice.toFixed(2)}</p>
 
-                                    <div className="flex gap-2">
+                                    <div className="flex gap-2 flex-wrap justify-end">
                                         {nextStatuses.map((status) => (
                                             <button
                                                 key={status}
                                                 disabled={busy}
                                                 onClick={() => updateStatus(order.id, status)}
-                                                className="text-xs font-medium px-3 py-1.5 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-50"
+                                                className="text-xs font-medium px-3 py-1.5 rounded-lg border border-[#E6DCC8] text-[#262019] hover:bg-[#FBF8F2] disabled:opacity-50 transition-colors"
                                             >
                                                 Mark {orderStatusLabels[status]}
                                             </button>
@@ -214,7 +222,7 @@ function AdminOrdersPage() {
                                             <button
                                                 disabled={busy}
                                                 onClick={() => refundOrder(order.id)}
-                                                className="text-xs font-medium px-3 py-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 disabled:opacity-50"
+                                                className="text-xs font-medium px-3 py-1.5 rounded-lg bg-[#B5402E]/10 text-[#B5402E] hover:bg-[#B5402E]/20 disabled:opacity-50 transition-colors"
                                             >
                                                 Refund
                                             </button>
@@ -223,9 +231,9 @@ function AdminOrdersPage() {
                                             <button
                                                 disabled={busy}
                                                 onClick={() => restockOrder(order.id)}
-                                                className="text-xs font-medium px-3 py-1.5 rounded-lg bg-green-50 text-green-700 hover:bg-green-100 disabled:opacity-50"
+                                                className="text-xs font-medium px-3 py-1.5 rounded-lg bg-[#3F7D5C]/10 text-[#2E5C44] hover:bg-[#3F7D5C]/20 disabled:opacity-50 transition-colors"
                                             >
-                                                Mark Returned & Restock
+                                                Mark returned & restock
                                             </button>
                                         )}
                                     </div>
@@ -241,17 +249,17 @@ function AdminOrdersPage() {
                     <button
                         disabled={page <= 1}
                         onClick={() => setPage((p) => p - 1)}
-                        className="text-sm px-3 py-1.5 rounded border border-gray-200 disabled:opacity-40"
+                        className="text-sm font-semibold px-4 py-2 rounded-full border border-[#E6DCC8] bg-white text-[#262019] hover:bg-[#1F5C50] hover:text-white hover:border-[#1F5C50] disabled:opacity-40 disabled:hover:bg-white disabled:hover:text-[#262019] disabled:hover:border-[#E6DCC8] transition-colors"
                     >
                         Previous
                     </button>
-                    <span className="text-sm text-gray-500">
+                    <span className="text-sm text-[#756B5A] font-medium">
                         Page {page} of {totalPages}
                     </span>
                     <button
                         disabled={page >= totalPages}
                         onClick={() => setPage((p) => p + 1)}
-                        className="text-sm px-3 py-1.5 rounded border border-gray-200 disabled:opacity-40"
+                        className="text-sm font-semibold px-4 py-2 rounded-full border border-[#E6DCC8] bg-white text-[#262019] hover:bg-[#1F5C50] hover:text-white hover:border-[#1F5C50] disabled:opacity-40 disabled:hover:bg-white disabled:hover:text-[#262019] disabled:hover:border-[#E6DCC8] transition-colors"
                     >
                         Next
                     </button>

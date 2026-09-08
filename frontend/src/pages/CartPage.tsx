@@ -180,9 +180,9 @@ function CartPage() {
         navigate('/checkout', { state: { productIds: Array.from(selectedProductIds) } })
     }
 
-    if (initialLoading) return <p className="p-8 text-[#7A6A5A]">Loading cart...</p>
-    if (error) return <p className="p-8 text-[#9C4325]">{error}</p>
-    if (!cart || cart.items.length === 0) return <p className="p-8 text-[#7A6A5A]">Your cart is empty.</p>
+    if (initialLoading) return <p className="p-8 text-[#756B5A] bg-[#F6F1E7] min-h-screen">Loading cart...</p>
+    if (error) return <p className="p-8 text-[#B5402E] bg-[#F6F1E7] min-h-screen">{error}</p>
+    if (!cart || cart.items.length === 0) return <p className="p-8 text-[#756B5A] bg-[#F6F1E7] min-h-screen">Your cart is empty.</p>
 
     const selectedItems = cart.items.filter((item) => selectedProductIds.has(item.productId))
     const subtotal = selectedItems.reduce((sum, item) => sum + item.lineTotal, 0)
@@ -196,10 +196,7 @@ function CartPage() {
 
     const summaryContent = (
         <>
-            <h2
-                className="text-lg text-[#2B1D14] mb-5"
-                style={{ fontFamily: "'Fraunces', serif", fontWeight: 600 }}
-            >
+            <h2 className="text-lg font-semibold text-[#262019] mb-5 heading-font">
                 Summary
             </h2>
 
@@ -207,12 +204,12 @@ function CartPage() {
                 {visibleSummaryItems.map((item) => (
                     <div key={item.productId} className="flex items-start justify-between gap-3 text-sm">
                         <div className="min-w-0">
-                            <p className="text-[#2B1D14] font-medium truncate">{item.productName}</p>
-                            <p className="text-[#B8A896] text-xs mt-0.5">
+                            <p className="text-[#262019] font-medium truncate">{item.productName}</p>
+                            <p className="text-[#A79B85] text-xs mt-0.5">
                                 {item.quantity} x ${item.unitPrice}
                             </p>
                         </div>
-                        <p className="text-[#2B1D14] font-semibold shrink-0">${item.lineTotal.toFixed(2)}</p>
+                        <p className="text-[#262019] font-semibold shrink-0">${item.lineTotal.toFixed(2)}</p>
                     </div>
                 ))}
             </div>
@@ -221,7 +218,7 @@ function CartPage() {
                 <button
                     type="button"
                     onClick={() => setShowAllSummaryItems(true)}
-                    className="text-xs font-medium text-[#B5502E] hover:text-[#9C4325] text-left mb-4"
+                    className="text-xs font-medium text-[#1F5C50] hover:text-[#163F37] text-left mb-4"
                 >
                     Show {hiddenSummaryCount} more
                 </button>
@@ -230,40 +227,40 @@ function CartPage() {
                 <button
                     type="button"
                     onClick={() => setShowAllSummaryItems(false)}
-                    className="text-xs font-medium text-[#B5502E] hover:text-[#9C4325] text-left mb-4"
+                    className="text-xs font-medium text-[#1F5C50] hover:text-[#163F37] text-left mb-4"
                 >
                     Show less
                 </button>
             )}
 
-            <div className="flex flex-col gap-3 text-sm border-t border-[#E4D5C1] pt-5">
-                <div className="flex justify-between text-[#7A6A5A]">
+            <div className="flex flex-col gap-3 text-sm border-t border-[#E6DCC8] pt-5">
+                <div className="flex justify-between text-[#756B5A]">
                     <span>Subtotal ({selectedItems.length} items)</span>
                     <span>${subtotal.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-[#7A6A5A]">
+                <div className="flex justify-between text-[#756B5A]">
                     <span>Shipping</span>
                     <span>${shipping.toFixed(2)}</span>
                 </div>
-                <p className="text-xs text-[#5B7A4A] font-medium">Free shipping on orders over $50</p>
+                <p className="text-xs text-[#3F7D5C] font-medium">Free shipping on orders over $50</p>
             </div>
 
-            <div className="flex justify-between items-center border-t border-[#E4D5C1] mt-5 pt-5">
-                <span className="font-bold text-[#2B1D14]">Total</span>
-                <span className="font-bold text-2xl text-[#2B1D14]">${total.toFixed(2)}</span>
+            <div className="flex justify-between items-center border-t border-[#E6DCC8] mt-5 pt-5">
+                <span className="font-semibold text-[#262019]">Total</span>
+                <span className="font-bold text-2xl text-[#B5402E] heading-font">${total.toFixed(2)}</span>
             </div>
 
             <div className="pt-5">
                 <button
                     onClick={handleCheckout}
                     disabled={selectedProductIds.size === 0}
-                    className="w-full bg-[#B5502E] hover:bg-[#9C4325] border border-[#8B3D1F] text-white font-medium py-3 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+                    className="w-full bg-[#B5402E] hover:bg-[#8F2F21] text-white font-semibold py-3 rounded-xl disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
                 >
                     <Lock size={14} />
                     Checkout
                 </button>
-                <p className="flex items-center justify-center gap-1.5 text-xs text-[#B8A896] mt-3">
-                    <ShieldCheck size={13} className="text-[#5B7A4A]" />
+                <p className="flex items-center justify-center gap-1.5 text-xs text-[#A79B85] mt-3">
+                    <ShieldCheck size={13} className="text-[#1F5C50]" />
                     Secure checkout
                 </p>
             </div>
@@ -271,30 +268,35 @@ function CartPage() {
     )
 
     return (
-        <div className="min-h-screen bg-white flex flex-col">
+        <div className="min-h-screen bg-[#F6F1E7] flex flex-col" style={{ fontFamily: "'Inter', sans-serif" }}>
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600;700&display=swap');
+                .heading-font { font-family: 'Space Grotesk', sans-serif; }
+            `}</style>
             <div className="flex-1 p-6 lg:p-8 flex flex-col">
                 <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-3">
-                        <h1
-                            className="text-2xl text-[#2B1D14]"
-                            style={{ fontFamily: "'Fraunces', serif", fontWeight: 600 }}
-                        >
-                            Your Cart
+                        <h1 className="text-2xl font-bold text-[#262019] heading-font">
+                            Your cart
                         </h1>
-                        <span className="bg-[#B5502E]/10 text-[#B5502E] border border-[#B5502E]/30 text-xs font-semibold px-2.5 py-1 rounded-full">
+                        <span className="bg-[#1F5C50]/10 text-[#1F5C50] text-xs font-semibold px-2.5 py-1 rounded-full">
                             {cart.items.length} {cart.items.length === 1 ? 'item' : 'items'}
                         </span>
                     </div>
                     <button
                         onClick={() => navigate('/')}
-                        className="flex items-center gap-1.5 text-sm font-medium text-[#B5502E] hover:text-[#9C4325]"
+                        className="flex items-center gap-1.5 text-sm font-medium text-[#1F5C50] hover:text-[#163F37]"
                     >
                         <ArrowLeft size={16} />
-                        Continue Shopping
+                        Continue shopping
                     </button>
                 </div>
 
-                {message && <p className="mb-4 text-sm text-[#9C4325]">{message}</p>}
+                {message && (
+                    <p className="mb-4 text-sm text-[#8F2F21] bg-[#B5402E]/10 rounded-lg px-3 py-2 inline-block w-fit">
+                        {message}
+                    </p>
+                )}
 
                 <div className="flex flex-col lg:flex-row gap-6 lg:gap-10">
                     <div className="flex-1 flex flex-col gap-3 min-w-0">
@@ -303,16 +305,17 @@ function CartPage() {
                             return (
                                 <div
                                     key={item.productId}
-                                    className="bg-white rounded-xl border border-[#B5502E]/30 shadow-sm p-4 flex items-center gap-4"
+                                    className="bg-white rounded-2xl border border-[#E6DCC8] p-4 flex items-center gap-4"
+                                    style={{ boxShadow: '0 6px 16px -10px rgba(38,32,25,0.15)' }}
                                 >
                                     <input
                                         type="checkbox"
                                         checked={selectedProductIds.has(item.productId)}
                                         onChange={() => toggleSelected(item.productId)}
-                                        className="w-4 h-4 accent-[#B5502E] shrink-0"
+                                        className="w-4 h-4 accent-[#1F5C50] shrink-0"
                                     />
 
-                                    <div className="w-16 h-16 shrink-0 bg-white border border-[#F0E6D6] rounded-lg flex items-center justify-center overflow-hidden">
+                                    <div className="w-16 h-16 shrink-0 bg-[#FBF8F2] border border-[#E6DCC8] rounded-xl flex items-center justify-center overflow-hidden">
                                         {showImage ? (
                                             <img
                                                 src={item.imageUrl}
@@ -321,20 +324,20 @@ function CartPage() {
                                                 onError={() => markImageBroken(item.productId)}
                                             />
                                         ) : (
-                                            <Package className="text-[#D9CBB8]" size={24} />
+                                            <Package className="text-[#D8CBAE]" size={24} />
                                         )}
                                     </div>
 
                                     <div className="flex-1 min-w-0">
-                                        <p className="font-semibold text-[#2B1D14] truncate">{item.productName}</p>
-                                        <p className="text-sm text-[#B8A896] mt-0.5">${item.unitPrice} each</p>
+                                        <p className="font-semibold text-[#262019] truncate">{item.productName}</p>
+                                        <p className="text-sm text-[#A79B85] mt-0.5">${item.unitPrice} each</p>
                                     </div>
 
                                     <div className="flex items-center gap-2 shrink-0">
                                         <button
                                             type="button"
                                             onClick={() => step(item, -1)}
-                                            className="w-7 h-7 bg-[#B5502E] hover:bg-[#9C4325] border border-[#8B3D1F] text-white rounded flex items-center justify-center transition-colors"
+                                            className="w-8 h-8 bg-[#FBF8F2] hover:bg-[#F1EADA] border border-[#E6DCC8] text-[#262019] rounded-lg flex items-center justify-center transition-colors"
                                         >
                                             <Minus size={14} />
                                         </button>
@@ -344,24 +347,24 @@ function CartPage() {
                                             value={getQuantityDraft(item)}
                                             onChange={(e) => handleQuantityInput(item.productId, e.target.value)}
                                             onBlur={() => handleQuantityBlur(item)}
-                                            className="w-10 border border-[#E4D5C1] rounded px-1 py-1 text-sm text-center text-[#2B1D14] bg-white"
+                                            className="w-10 border border-[#E6DCC8] rounded-lg px-1 py-1 text-sm text-center text-[#262019] bg-white"
                                         />
                                         <button
                                             type="button"
                                             onClick={() => step(item, 1)}
-                                            className="w-7 h-7 bg-[#B5502E] hover:bg-[#9C4325] border border-[#8B3D1F] text-white rounded flex items-center justify-center transition-colors"
+                                            className="w-8 h-8 bg-[#FBF8F2] hover:bg-[#F1EADA] border border-[#E6DCC8] text-[#262019] rounded-lg flex items-center justify-center transition-colors"
                                         >
                                             <Plus size={14} />
                                         </button>
                                     </div>
 
-                                    <p className="font-bold text-[#2B1D14] w-16 text-right shrink-0">
+                                    <p className="font-bold text-[#262019] w-16 text-right shrink-0">
                                         ${item.lineTotal.toFixed(2)}
                                     </p>
 
                                     <button
                                         onClick={() => handleDelete(item)}
-                                        className="text-[#B5502E]/60 hover:text-[#9C4325] shrink-0 transition-colors"
+                                        className="text-[#A79B85] hover:text-[#B5402E] shrink-0 transition-colors"
                                     >
                                         <Trash2 size={18} />
                                     </button>
@@ -369,65 +372,68 @@ function CartPage() {
                             )
                         })}
 
-                        <div className="lg:hidden bg-white rounded-xl border border-[#B5502E]/30 shadow-sm p-6 flex flex-col mt-3">
+                        <div className="lg:hidden bg-white rounded-2xl border border-[#E6DCC8] p-6 flex flex-col mt-3">
                             {summaryContent}
                         </div>
                     </div>
 
                     <div className="hidden lg:block w-[22rem] xl:w-[26rem] shrink-0">
-                        <div className="sticky top-8 bg-white rounded-2xl border border-[#E4D5C1] shadow-xl shadow-[#2B1D14]/5 p-8 max-h-[calc(100vh-4rem)] overflow-y-auto">
+                        <div
+                            className="sticky top-8 bg-white rounded-2xl border border-[#E6DCC8] p-8 max-h-[calc(100vh-4rem)] overflow-y-auto"
+                            style={{ boxShadow: '0 20px 50px -20px rgba(38,32,25,0.2)' }}
+                        >
                             {summaryContent}
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div className="sticky bottom-0 z-30 bg-white border-t border-[#E4D5C1]">
-                <div className="px-6 lg:px-8 py-3 flex items-center justify-between border-b border-[#F0E6D6]">
-                    <label className="flex items-center gap-2 text-sm text-[#7A6A5A] cursor-pointer">
+            <div className="sticky bottom-0 z-30 bg-white border-t border-[#E6DCC8]">
+                <div className="px-6 lg:px-8 py-3 flex items-center justify-between border-b border-[#E6DCC8]">
+                    <label className="flex items-center gap-2 text-sm text-[#756B5A] cursor-pointer">
                         <input
                             type="checkbox"
                             checked={allSelected}
                             onChange={toggleSelectAll}
-                            className="w-4 h-4 accent-[#B5502E]"
+                            className="w-4 h-4 accent-[#1F5C50]"
                         />
                         Select all ({cart.items.length})
                     </label>
                     <button
                         onClick={handleClearCart}
-                        className="text-sm font-medium text-[#9C4325] hover:text-[#7A3018]"
+                        className="text-sm font-medium text-[#B5402E] hover:text-[#8F2F21]"
                     >
-                        Clear Cart
+                        Clear cart
                     </button>
                 </div>
 
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 px-6 lg:px-8 py-4">
                     <div className="flex items-center gap-3">
-                        <Truck size={20} className="text-[#B5502E] shrink-0" />
+                        <Truck size={20} className="text-[#1F5C50] shrink-0" />
                         <div>
-                            <p className="text-sm font-medium text-[#2B1D14]">Free Shipping</p>
-                            <p className="text-xs text-[#B8A896]">On orders over $50</p>
+                            <p className="text-sm font-medium text-[#262019]">Free shipping</p>
+                            <p className="text-xs text-[#A79B85]">On orders over $50</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-3">
-                        <RotateCcw size={20} className="text-[#B5502E] shrink-0" />
+                        <RotateCcw size={20} className="text-[#1F5C50] shrink-0" />
                         <div>
-                            <p className="text-sm font-medium text-[#2B1D14]">Easy Returns</p>
-                            <p className="text-xs text-[#B8A896]">30-day return policy</p>
+                            <p className="text-sm font-medium text-[#262019]">Easy returns</p>
+                            <p className="text-xs text-[#A79B85]">30-day return policy</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-3">
-                        <ShieldCheck size={20} className="text-[#B5502E] shrink-0" />
+                        <ShieldCheck size={20} className="text-[#1F5C50] shrink-0" />
                         <div>
-                            <p className="text-sm font-medium text-[#2B1D14]">Secure Payment</p>
-                            <p className="text-xs text-[#B8A896]">100% secure checkout</p>
+                            <p className="text-sm font-medium text-[#262019]">Secure payment</p>
+                            <p className="text-xs text-[#A79B85]">100% secure checkout</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-3">
-                        <Headphones size={20} className="text-[#B5502E] shrink-0" />
+                        <Headphones size={20} className="text-[#1F5C50] shrink-0" />
                         <div>
-                            <p className="text-sm font-medium text-[#2B1D14]">24/7 Support</p>
-                            <p className="text-xs text-[#B8A896]">We're here to help</p>
+                            <p className="text-sm font-medium text-[#262019]">24/7 support</p>
+                            <p className="text-xs text-[#A79B85]">We're here to help</p>
                         </div>
                     </div>
                 </div>
