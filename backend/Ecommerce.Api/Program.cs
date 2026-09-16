@@ -63,7 +63,7 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddSingleton<IMinioClient>(_ => new MinioClient()
     .WithEndpoint("localhost:9000")
-    .WithCredentials("minioadmin", "minioadmin")
+    .WithCredentials("adminminio", "adminminio")
     .WithSSL(false)
     .Build());
 builder.Services.AddScoped<IImageStorageService, MinioImageStorageService>();
