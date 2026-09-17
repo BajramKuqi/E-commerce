@@ -54,9 +54,7 @@ function RegisterPage() {
                 />
 
                 <div className="relative flex items-center gap-2 text-white">
-                    <div className="w-8 h-8 rounded-lg bg-white/15 flex items-center justify-center">
-                        <ShoppingBag className="w-4 h-4 text-white" strokeWidth={2} />
-                    </div>
+                    <img src="/logo.png" alt="Vatra" className="w-8 h-8 rounded-lg object-cover" />
                     <div className="flex flex-col leading-tight">
                         <span className="font-bold text-lg heading-font">Vatra</span>
                         <span className="text-white/60 text-[10px] font-medium tracking-wide uppercase -mt-1">
@@ -85,8 +83,8 @@ function RegisterPage() {
                         className="relative bg-white border border-[#E6DCC8] rounded-2xl px-8 pt-12 pb-8"
                         style={{ boxShadow: '0 30px 60px -20px rgba(38,32,25,0.2)' }}
                     >
-                        <div className="absolute -top-6 left-8 w-12 h-12 rounded-xl bg-[#1F5C50] border-4 border-[#F6F1E7] shadow-lg flex items-center justify-center">
-                            <ShoppingBag className="w-5 h-5 text-white" strokeWidth={2} />
+                        <div className="absolute -top-6 left-8 w-12 h-12 rounded-xl border-4 border-[#F6F1E7] shadow-lg overflow-hidden">
+                            <img src="/logo.png" alt="Vatra" className="w-full h-full object-cover" />
                         </div>
 
                         <h1 className="text-2xl font-bold text-[#262019] mb-1 heading-font">

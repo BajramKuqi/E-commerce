@@ -10,6 +10,10 @@ namespace Ecommerce.Api.Services;
 public class OrderService : IOrderService
 {
     private const int ReservationMinutes = 30;
+    private const decimal FreeShippingThreshold = 50m;
+    private const decimal MidTierThreshold = 15m;
+    private const decimal MidTierShipping = 4.99m;
+    private const decimal LowTierShipping = 2.99m;
     private readonly AppDbContext _context;
     
     public OrderService(AppDbContext context)
@@ -41,7 +45,7 @@ public class OrderService : IOrderService
         var expiresAt = DateTime.UtcNow.AddMinutes(ReservationMinutes);
         decimal total = 0;
 
-        foreach (var cartItem in cart.Items)
+        foreach (var cartItem in itemsToCheckout)
         {
             var product = cartItem.Product;
 
@@ -69,7 +73,13 @@ public class OrderService : IOrderService
             total += product.Price * cartItem.Quantity;
         }
 
-        order.TotalAmount = total;
+        var shipping = total >= FreeShippingThreshold
+            ? 0m
+            : total >= MidTierThreshold
+                ? MidTierShipping
+                : LowTierShipping;
+
+        order.TotalAmount = total + shipping;
         _context.Orders.Add(order);
 
         foreach (var item in itemsToCheckout)

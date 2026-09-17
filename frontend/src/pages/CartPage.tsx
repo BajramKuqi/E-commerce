@@ -24,6 +24,9 @@ function sanitizeDigits(value: string) {
 }
 
 const FREE_SHIPPING_THRESHOLD = 50
+const MID_TIER_THRESHOLD = 15
+const MID_TIER_SHIPPING = 4.99
+const LOW_TIER_SHIPPING = 2.99
 const SUMMARY_ITEMS_PREVIEW_COUNT = 4
 
 function CartPage() {
@@ -186,7 +189,12 @@ function CartPage() {
 
     const selectedItems = cart.items.filter((item) => selectedProductIds.has(item.productId))
     const subtotal = selectedItems.reduce((sum, item) => sum + item.lineTotal, 0)
-    const shipping = subtotal === 0 || subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : 0
+    const shipping =
+        subtotal === 0 || subtotal >= FREE_SHIPPING_THRESHOLD
+            ? 0
+            : subtotal >= MID_TIER_THRESHOLD
+                ? MID_TIER_SHIPPING
+                : LOW_TIER_SHIPPING
     const total = subtotal + shipping
     const allSelected = selectedProductIds.size === cart.items.length
     const visibleSummaryItems = showAllSummaryItems
@@ -242,7 +250,11 @@ function CartPage() {
                     <span>Shipping</span>
                     <span>${shipping.toFixed(2)}</span>
                 </div>
-                <p className="text-xs text-[#3F7D5C] font-medium">Free shipping on orders over $50</p>
+                <p className="text-xs text-[#3F7D5C] font-medium">
+                    {shipping === 0
+                        ? 'Free shipping applied'
+                        : `Add $${(FREE_SHIPPING_THRESHOLD - subtotal).toFixed(2)} more for free shipping`}
+                </p>
             </div>
 
             <div className="flex justify-between items-center border-t border-[#E6DCC8] mt-5 pt-5">

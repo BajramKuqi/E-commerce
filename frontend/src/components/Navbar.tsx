@@ -7,7 +7,6 @@ import {
     X,
     ChevronDown,
     LogOut,
-    Store,
     ShoppingBag,
     Boxes,
     ClipboardList,
@@ -78,9 +77,7 @@ function Navbar() {
                         </button>
 
                         <NavLink to="/" className="flex items-center gap-2">
-                            <div className="w-8 h-8 rounded-lg bg-[#1F5C50] flex items-center justify-center shrink-0">
-                                <Store size={16} className="text-white" />
-                            </div>
+                            <img src="/logo.png" alt={BRAND_NAME} className="w-8 h-8 rounded-lg object-cover shrink-0" />
                             <div className="flex flex-col leading-tight">
                                 <span className="text-[#262019] text-lg font-bold whitespace-nowrap heading-font">
                                     {BRAND_NAME}
